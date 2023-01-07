@@ -12,6 +12,11 @@ class BallRegister {
 		self::RegisterStats();
 		self::RegisterSEASON();
 		self::RegisterMachine();
+
+	}
+
+	public static function RegisterAdminNotice(): void {
+		add_action( 'admin_notices', 'BallAdminNoticeHandler::BallAdminNotice' );
 	}
 
 	/**
@@ -23,7 +28,7 @@ class BallRegister {
 			'name'          => __( 'Machines' ),
 			'singular_name' => __( 'Machine' )
 		);
-		add_action( sprintf( "save_post_{%s}", WPBallObjectsRepository::SEASON_POST_TYPE ), "BallPostSaveHandler::SaveSeason" );
+
 
 		return register_post_type( WPBallObjectsRepository::MACHINE_POST_TYPE, $args );
 	}
@@ -38,8 +43,9 @@ class BallRegister {
 			'name'          => __( 'Players' ),
 			'singular_name' => __( 'Player' )
 		);
-		add_action( "save_post_" . WPBallObjectsRepository::PLAYER_POST_TYPE, "BallPostSaveHandler" );
 
+		$player_type    = strtolower( WPBallObjectsRepository::PLAYER_POST_TYPE );
+		add_action( "save_post_{$player_type}", "BallPostSaveHandler::SavePlayer" );
 		return register_post_type( WPBallObjectsRepository::PLAYER_POST_TYPE, $args );
 	}
 
@@ -53,7 +59,7 @@ class BallRegister {
 			'name'          => __( 'Scores' ),
 			'singular_name' => __( 'Score' )
 		);
-		add_action( "save_post_" . WPBallObjectsRepository::SCORE_POST_TYPE, "BallPostSaveHandler" );
+
 
 		return register_post_type( WPBallObjectsRepository::SCORE_POST_TYPE, $args );
 	}
@@ -68,7 +74,7 @@ class BallRegister {
 			'name'          => __( 'Matches' ),
 			'singular_name' => __( 'Match' )
 		);
-		add_action( "save_post_" . WPBallObjectsRepository::MATCH_POST_TYPE, "BallPostSaveHandler" );
+		add_action( "save_post_" . WPBallObjectsRepository::MATCH_POST_TYPE, "BallPostSaveHandler::SaveMatch" );
 
 		return register_post_type( WPBallObjectsRepository::MATCH_POST_TYPE, $args );
 	}
@@ -83,7 +89,7 @@ class BallRegister {
 			'name'          => __( 'Seasons' ),
 			'singular_name' => __( 'Season' )
 		);
-		$SEASON_POST_TYPE    = strtolower( WPBallObjectsRepository::SEASON_POST_TYPE);
+		$SEASON_POST_TYPE    = strtolower( WPBallObjectsRepository::SEASON_POST_TYPE );
 		add_action( "save_post_{$SEASON_POST_TYPE}", "BallPostSaveHandler::SaveSeason" );
 		add_action( "edit_form_after_title", "BallPostFormHandler::EditSeason" );
 
@@ -112,7 +118,7 @@ class BallRegister {
 		$args = array(
 
 
-			'supports'        => array(
+			'supports' => array(
 				'custom-fields',
 				'title',
 				'editor',
@@ -121,7 +127,7 @@ class BallRegister {
 				'thumbnail'
 			),
 
-			'public'          => true, // bool (default is FALSE)
+			'public' => true, // bool (default is FALSE)
 
 
 			'publicly_queryable'  => true, // bool (defaults to 'public').

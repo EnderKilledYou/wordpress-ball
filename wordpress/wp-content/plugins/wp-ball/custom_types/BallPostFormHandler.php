@@ -6,10 +6,8 @@ class BallPostFormHandler {
 		if ( $post->post_type !== strtolower( WPBallObjectsRepository::SEASON_POST_TYPE ) ) {
 			return;
 		}
-
 		$players                = PlayerHelper::get_players();
 		$current_players_scores = ScoreHelper::get_season_scores( $post->ID );
-
 		?>
         <div class="postbox ">
             <div class="postbox-header">

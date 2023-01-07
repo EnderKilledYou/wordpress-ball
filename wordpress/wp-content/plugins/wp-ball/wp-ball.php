@@ -49,7 +49,7 @@ include_once( "custom_types/BallRegister.php" );
 include_once( "custom_types/ScoreHelper.php" );
 include_once( "custom_types/WPBallMachine.php" );
 include_once( "custom_types/WPBallObjectsRepository.php" );
-
+include_once( "custom_types/BallAdminNoticeHandler.php" );
 function activate_wp_ball() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-ball-activator.php';
 
