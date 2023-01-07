@@ -10,8 +10,10 @@ RUN apt-get update \
       default-mysql-client-core \
     && curl https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp \
     && chmod +x /usr/local/bin/wp
+RUN pecl install xdebug-2.9.2  && docker-php-ext-enable xdebug
 
-#3. Create the files for the testing environment
+
+
 RUN \
     #3.1 Install phpunit
     curl -L https://phar.phpunit.de/phpunit-7.phar -o /tmp/phpunit \

@@ -31,6 +31,8 @@ class Wp_Ball_Activator {
 	 */
 	public static function activate() {
 
+
+
 	}
 
 }

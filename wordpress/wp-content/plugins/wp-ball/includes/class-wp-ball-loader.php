@@ -123,7 +123,7 @@ class Wp_Ball_Loader {
 		foreach ( $this->actions as $hook ) {
 			add_action( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
 		}
-
+		add_action( 'init', 'BallRegister::RegisterPostTypes' );
 	}
 
 }

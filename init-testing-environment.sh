@@ -15,8 +15,8 @@ then
 	fi
 
 	#3. init the testing instance
-	sudo -u www-data -- wp scaffold plugin-tests $WP_PLUGIN_FOLDER --force
-	cd wp-content/plugins/$WP_PLUGIN_FOLDER && sudo -u www-data -- bash -c "./bin/install-wp-tests.sh $WP_TESTS_DB_NAME $WORDPRESS_DB_USER $WORDPRESS_DB_PASSWORD $WORDPRESS_DB_HOST latest true"
+	sudo -u www-data -- wp scaffold plugin-tests "$WP_PLUGIN_FOLDER" --force
+	cd wp-content/plugins/"$WP_PLUGIN_FOLDER" && sudo -u www-data -- bash -c "./bin/install-wp-tests.sh $WP_TESTS_DB_NAME $WORDPRESS_DB_USER $WORDPRESS_DB_PASSWORD $WORDPRESS_DB_HOST latest true"
 fi
 
 #4. back to the root WP folder
