@@ -45,7 +45,7 @@ class BallPostSaveHandler {
 		'publish',
 		'pending',
 		'draft',
-		'auto-draft',
+
 		'future',
 		'private',
 		'inherit',

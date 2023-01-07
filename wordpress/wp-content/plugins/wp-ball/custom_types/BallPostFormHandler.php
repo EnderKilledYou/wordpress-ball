@@ -3,10 +3,13 @@
 class BallPostFormHandler {
 	public static function EditSeason( WP_Post $post ): void {
 
+		if ( $post->post_type !== strtolower( WPBallObjectsRepository::SEASON_POST_TYPE ) ) {
+			return;
+		}
 
 		$players         = PlayerHelper::get_players();
 		$current_players = ScoreHelper::get_season_scores( $post->ID );
-        var_dump($current_players);
+
 		?>
         <div class="postbox ">
             <div class="postbox-header">
@@ -27,20 +30,20 @@ class BallPostFormHandler {
                     score. </p>
                 <label>
                     <select multiple name="players[]">
-                        <?php
-                        foreach ( $players as $player ) {
-                            $isCurrent = self::IsCurrentPlayer( $player, $current_players );
-                            $selected = '';
-                            if($isCurrent){
-                                $selected = ' selected ';
-                            }
-                            ?>
+						<?php
+						foreach ( $players as $player ) {
+							$isCurrent = self::IsCurrentPlayer( $player, $current_players );
+							$selected  = '';
+							if ( $isCurrent ) {
+								$selected = ' selected ';
+							}
+							?>
 
                             <option <?php echo $selected; ?> e value="<?php echo $player->ID; ?>">
-                                <?php echo $player->post_title; ?>
+								<?php echo $player->post_title; ?>
                             </option>
-                        <?php }
-                        ?>
+						<?php }
+						?>
 
                     </select>
                 </label>
