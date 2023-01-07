@@ -7,8 +7,8 @@ class BallPostFormHandler {
 			return;
 		}
 
-		$players         = PlayerHelper::get_players();
-		$current_players = ScoreHelper::get_season_scores( $post->ID );
+		$players                = PlayerHelper::get_players();
+		$current_players_scores = ScoreHelper::get_season_scores( $post->ID );
 
 		?>
         <div class="postbox ">
@@ -32,14 +32,14 @@ class BallPostFormHandler {
                     <select multiple name="players[]">
 						<?php
 						foreach ( $players as $player ) {
-							$isCurrent = self::IsCurrentPlayer( $player, $current_players );
+							$isCurrent = self::IsCurrentPlayer( $player, $current_players_scores );
 							$selected  = '';
 							if ( $isCurrent ) {
 								$selected = ' selected ';
 							}
 							?>
 
-                            <option <?php echo $selected; ?> e value="<?php echo $player->ID; ?>">
+                            <option <?php echo $selected; ?> value="<?php echo $player->ID; ?>">
 								<?php echo $player->post_title; ?>
                             </option>
 						<?php }
@@ -56,15 +56,11 @@ class BallPostFormHandler {
 
 	}
 
-	/**
-	 * @param WP_Post $players
-	 * @param WP_Post[] $current_players
-	 *
-	 * @return bool
-	 */
-	private static function IsCurrentPlayer( WP_Post $player, array $current_players ): bool {
-		foreach ( $current_players as $current_player ) {
-			if ( $player->ID === $current_player->ID ) {
+
+	private static function IsCurrentPlayer( WP_Post $player, array $current_players_scores ): bool {
+		foreach ( $current_players_scores as $current_player_score ) {
+			$player_id = ScoreHelper::get_player_id_from_score( $current_player_score->ID );
+			if ( $player->ID === $player_id ) {
 				return true;
 			}
 		}
