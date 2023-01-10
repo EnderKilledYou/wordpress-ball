@@ -32,7 +32,8 @@ if ( ! defined( 'WPINC' ) ) {
 
 /**
  * Currently plugin version.
- * Start at version 1.0.0 and use SemVer - https://semver.org
+ * Start at version 1.0.0 ------
+ * and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
 define( 'WP_BALL_VERSION', '1.0.0' );
@@ -46,10 +47,16 @@ include_once( "custom_types/PinballObject.php" );
 include_once ("custom_types/BallPostSaveHandler.php");
 include_once( "custom_types/BallPostFormHandler.php" );
 include_once( "custom_types/BallRegister.php" );
-include_once( "custom_types/ScoreHelper.php" );
+include_once( "repos/ScoreHelper.php" );
+include_once( "repos/MachineHelper.php" );
+include_once( "repos/MatchHelper.php" );
+include_once( "repos/PlayerHelper.php" );
+include_once( "logic/ScheduleHelper.php" );
 include_once( "custom_types/WPBallMachine.php" );
 include_once( "custom_types/WPBallObjectsRepository.php" );
 include_once( "custom_types/BallAdminNoticeHandler.php" );
+include_once( "custom_types/BallShortCodeHandler.php" );
+
 function activate_wp_ball() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-ball-activator.php';
 

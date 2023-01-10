@@ -12,10 +12,12 @@ class BallRegister {
 		self::RegisterStats();
 		self::RegisterSEASON();
 		self::RegisterMachine();
+		self::RegisterAdminNotice();
 
 	}
 
 	public static function RegisterAdminNotice(): void {
+
 		add_action( 'admin_notices', 'BallAdminNoticeHandler::BallAdminNotice' );
 	}
 
@@ -44,8 +46,13 @@ class BallRegister {
 			'singular_name' => __( 'Player' )
 		);
 
-		$player_type    = strtolower( WPBallObjectsRepository::PLAYER_POST_TYPE );
+		//add_shortcode( 'playerscore', 'BallShortCodeHandler' );
+		add_shortcode( 'playerwins', 'BallShortCodeHandler::Create_PlayerWins' );
+//		add_shortcode( 'playermatch', 'BallShortCodeHandler' );
+//		add_shortcode( 'playerloses', 'BallShortCodeHandler' );
+		$player_type = strtolower( WPBallObjectsRepository::PLAYER_POST_TYPE );
 		add_action( "save_post_{$player_type}", "BallPostSaveHandler::SavePlayer" );
+
 		return register_post_type( WPBallObjectsRepository::PLAYER_POST_TYPE, $args );
 	}
 
@@ -62,6 +69,20 @@ class BallRegister {
 
 
 		return register_post_type( WPBallObjectsRepository::SCORE_POST_TYPE, $args );
+	}
+	/**
+	 * @return WP_Error|WP_Post_Type
+	 */
+	public static function RegisterGame() {
+		$args                = self::get_default_args();
+		$args['description'] = "Game Data ";
+		$args['labels']      = array(
+			'name'          => __( 'Games' ),
+			'singular_name' => __( 'Game' )
+		);
+		add_action( "save_post_" . WPBallObjectsRepository::GAME_POST_TYPE, "BallPostSaveHandler::SaveGame" );
+
+		return register_post_type( WPBallObjectsRepository::GAME_POST_TYPE, $args );
 	}
 
 	/**

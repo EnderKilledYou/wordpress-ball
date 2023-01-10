@@ -25,6 +25,7 @@ class WPBallObjectsRepository {
 
 	public const SCORE_POST_TYPE = 'Score';
 	public const MATCH_POST_TYPE = 'Match';
+	public const GAME_POST_TYPE = 'Gamed';
 	public const SEASON_POST_TYPE = 'Season';
 
 	public const STATISTIC_POST_TYPE = 'Statistic';

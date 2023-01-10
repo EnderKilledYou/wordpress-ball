@@ -13,9 +13,12 @@ class BallPostFormHandler {
             <div class="postbox-header">
                 <h2 class="hndle  ui-sortable-handle">Add Players to current season</h2>
                 <div class="handle-actions hide-if-no-js">
-                    <button type="button" class="button button-primary button-large"
-                    > Rebuild with selected players
-                    </button>
+
+                    <label>
+                        <input type="checkbox" name="generate_matches" class="button button-primary button-large"/>
+                        Rebuild with selected players
+                    </label>
+
 
                 </div>
             </div>
