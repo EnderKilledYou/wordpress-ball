@@ -3,7 +3,8 @@
 class BallExcerptHandler {
 	public static function MatchHandler( $orig ) {
 		$id = get_the_ID();
-echo "SDFASDF";
+		echo "SDFASDF";
+
 		return $id;
 	}
 }
@@ -74,10 +75,14 @@ class BallPostSaveHandler {
 		if ( ! isset( $_REQUEST['generate_matches'], $_REQUEST['start_date'] ) ) {
 			return;
 		}
-		$matches    = MatchHelper::get_season_matches( $id );
-		$first_date = strtotime( $_REQUEST['start_date'] );
-		$timestamp  = $first_date;
-		for ( $i = 0; $i < 7; $i ++ ) {
+		$matches     = MatchHelper::get_season_matches( $id );
+		$first_date  = strtotime( $_REQUEST['start_date'] );
+		$timestamp   = $first_date;
+		$total_weeks = 7;
+		if ( isset( $_REQUEST['total_weeks'] ) && ctype_digit( $_REQUEST['total_weeks'] ) ) {
+			$total_weeks = abs( (int) $_REQUEST['total_weeks'] );
+		}
+		for ( $i = 0; $i < $total_weeks; $i ++ ) {
 			if ( ! self::find_match_by_week( $matches, $timestamp ) ) {
 
 				$match_id = MatchHelper::create_match( $id, $i + 1, date( "m/d/Y", $timestamp ) );

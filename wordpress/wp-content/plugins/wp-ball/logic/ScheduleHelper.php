@@ -3,27 +3,32 @@
 class ScheduleHelper {
 
 	public static function RebuildSchedule( $id ) {
-		$scores  = ScoreHelper::get_season_scores( $id );
-		$players = PlayerHelper::map_scores_to_players( $scores );
-		$matches = MatchHelper::get_season_matches( $id );
+		$total_games = 4;
+		if ( isset( $_REQUEST['total_games'] ) && ctype_digit( $_REQUEST['total_games'] ) ) {
+			$total_games = abs( (int) $_REQUEST['total_games'] );
+		}
+		$scores      = ScoreHelper::get_season_scores( $id );
+		$players     = PlayerHelper::map_scores_to_players( $scores );
+		$matches     = MatchHelper::get_season_matches( $id );
+		$match_count = count( $matches );
 		foreach ( $matches as $match ) {
-			for ( $i = 0; $i < 4; $i ++ ) {
-				$lineup = self::get_player_vs_count( $matches, $players );
-				foreach ( $players as $player ) {
-					$existing_games = GameHelper::get_player_games_for_match( $player->ID, $match->ID );
-					if ( count( $existing_games ) > $i ) {
-						continue;
-					}
-					$player_id = $player->ID;
-					$all_but   = array_filter( $players, static function ( $e ) use ( $player_id ) {
-						return $player_id !== $e->ID;
-					} );
-					$avg       = self::get_player_score_avg( $player_id );
-					$lowest    = self::find_lowest_played( $lineup[ $player_id ], $all_but, $avg );
-					GameHelper::create_game( $id, $match->ID, $player_id, $lowest );
 
+			$lineup = self::get_player_vs_count( $matches, $players );
+			foreach ( $players as $player ) {
+				$existing_games = GameHelper::get_player_games_for_match( $player->ID, $match->ID );
+				if ( count( $existing_games ) > $i ) {
+					continue;
 				}
+				$player_id = $player->ID;
+				$all_but   = array_values( array_filter( $players, static function ( $e ) use ( $player_id ) {
+					return $player_id !== $e->ID;
+				} ) );
+				$avg       = self::get_player_score_avg( $player_id );
+				$lowest    = self::find_lowest_played( $lineup[ $player_id ], $all_but, $avg, -- $match_count === 0 );
+				GameHelper::create_game( $id, $match->ID,$total_games, $player_id, $lowest );
+
 			}
+
 		}
 
 
@@ -100,13 +105,14 @@ class ScheduleHelper {
 	 */
 
 
-	private static function find_lowest_played( array $counter, array $playable, $avg ): int {
+	private static function find_lowest_played( array $counter, array $playable, $avg, bool $final_week ): int {
 
-		$lowest       = $counter[ $playable[0]->ID ];
+		$first_id     = $playable[0]->ID;
+		$lowest       = $counter[ $first_id ];
 		$lowest_index = 0;
 		$i            = 0;
 		$distance     =
-		$lowest_dist = abs( $avg - self::get_player_score_avg( $playable[0]->ID ) );
+		$lowest_dist = abs( $avg - self::get_player_score_avg( $first_id ) );
 		foreach ( $playable as $play ) {
 			if ( $i === 0 ) {
 				$i ++;
@@ -120,7 +126,7 @@ class ScheduleHelper {
 				$i ++;
 				continue;
 			}
-			if ( $counter[ $play->ID ] === $lowest ) {
+			if ( ( $counter[ $play->ID ] === $lowest ) && $final_week ) {
 				$dist = abs( $avg - self::get_player_score_avg( $play->ID ) );
 				if ( $dist < $lowest_dist ) {
 					$lowest_dist  = $dist;
@@ -128,12 +134,12 @@ class ScheduleHelper {
 					$i ++;
 					continue;
 				}
-				$i ++;
 			}
+			$i ++;
 
 		}
 
-		return $playable[ $lowest_index ];
+		return $playable[ $lowest_index ]->ID;
 	}
 
 	/**
@@ -143,7 +149,7 @@ class ScheduleHelper {
 	 */
 	public static function get_player_score_avg( int $player_id ) {
 		$score       = GameHelper::get_total_player_points( $player_id );
-		$total_games = count( GameHelper::get_all_player_games( $player_id ) );
+		$total_games = count( GameHelper::get_all_player_complete_games( $player_id ) );
 		if ( $total_games > 0 ) {
 			$avg = $score / $total_games;
 		} else {

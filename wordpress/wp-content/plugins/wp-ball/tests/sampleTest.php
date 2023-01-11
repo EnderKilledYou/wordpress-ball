@@ -62,7 +62,7 @@ final class StackTest extends TestCase {
 //	}
 
 	public function test_update_2sseason(): void {
-		$player_names     = [ 'john', 'tim', 'doug', 'frank', 'bilbo', 'tommy', 'francis', 'johhny' ];
+ 		$player_names     = [ 'john', 'tim', 'doug', 'frank', 'bilbo', 'tommy', 'francis', 'johhny' ];
 		$player_avg_score = [ 1000, 1000, 10000, 10000, 10000, 100000, 1000000, 1000000 ];
 		$players          = [];
 
@@ -102,10 +102,10 @@ final class StackTest extends TestCase {
 		wp_publish_post( $season_id );
 		$sgames = GameHelper::get_games_by_season( $season_id );
 		$i      = 0;
-		foreach ( $players as $player ) {
-			$games = GameHelper::get_player_games_by_season( $player->ID, $season_id );
+		foreach ( $players as $player_id ) {
+			$games = GameHelper::get_player_games_by_season( $player_id, $season_id );
 			foreach ( $games as $game ) {
-				if ( $player->ID === (int) GameHelper::get_player1_ID( $game->ID ) ) {
+				if ( $player_id === (int) GameHelper::get_player1_ID( $game->ID ) ) {
 					$variance = random_int( 1, $player_avg_score[ $i ] * .1 );
 					if ( random_int( 0, 4 ) === 1 ) {
 						$variance *= - 1;
