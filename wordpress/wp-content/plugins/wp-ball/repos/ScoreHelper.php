@@ -109,14 +109,15 @@ class ScoreHelper {
 
 	public static function get_total_player_points( int $score_id ): int {
 		$player_id = self::get_player_id_from_score( $score_id );
-		$games     = GameHelper::get_player_games( $player_id );
+		$games     = GameHelper::get_all_player_games( $player_id );
 		$sum       = 0;
 		foreach ( $games as $game ) {
-			$sum += GameHelper::get_player_score_by_id( $game->ID );
+			$sum += GameHelper::get_winner_score_by_id( $game->ID );
 		}
 
 		return $sum;
 	}
+
 
 	public static function get_total_player_points_for_season( int $season_id ): int {
 		$scores = self::get_season_scores( $season_id );
@@ -124,10 +125,10 @@ class ScoreHelper {
 		foreach ( $scores as $score ) {
 			$score_id  = $score->ID;
 			$player_id = self::get_player_id_from_score( $score_id );
-			$games     = GameHelper::get_player_games( $player_id );
+			$games     = GameHelper::get_all_player_games( $player_id );
 
 			foreach ( $games as $game ) {
-				$sum += GameHelper::get_player_score_by_id( $game->ID );
+				$sum += GameHelper::get_winner_score_by_id( $game->ID );
 			}
 		}
 
@@ -136,7 +137,7 @@ class ScoreHelper {
 
 	public static function get_player_losses( int $score_id ): int {
 		$player_id = self::get_player_id_from_score( $score_id );
-		$games     = GameHelper::get_lost_games( $player_id );
+		$games     = GameHelper::get_player_games_lost( $player_id );
 
 		return count( $games );
 
@@ -149,16 +150,16 @@ class ScoreHelper {
 		return count( $games );
 	}
 
-	public static function get_player_matches( int $score_id ): int {
+	public static function get_player_games( int $score_id ): int {
 		$player_id = self::get_player_id_from_score( $score_id );
-		$games     = GameHelper::get_player_games( $player_id );
+		$games     = GameHelper::get_all_player_games( $player_id );
 
 		return count( $games );
 	}
 
 	public static function get_player_season_losses( int $score_id ): int {
 		$player_id = self::get_player_id_from_score( $score_id );
-		$games     = GameHelper::get_lost_games( $player_id );
+		$games     = GameHelper::get_player_games_lost( $player_id );
 
 		return count( $games );
 
@@ -173,7 +174,7 @@ class ScoreHelper {
 
 	public static function get_player_season_matches( int $score_id ): int {
 		$player_id = self::get_player_id_from_score( $score_id );
-		$games     = GameHelper::get_player_games( $player_id );
+		$games     = GameHelper::get_all_player_games( $player_id );
 
 		return count( $games );
 	}

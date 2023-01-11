@@ -3,7 +3,7 @@
 class BallShortCodeHandler {
 	// Create Shortcode playerscore
 // Shortcode: [playerscore playerid="0"]
-	public static function Create_PlayerScore( $atts ): string {
+	public static function PlayerTotalScore( $atts ): string {
 
 		$atts = shortcode_atts(
 			array(
@@ -15,34 +15,34 @@ class BallShortCodeHandler {
 
 
 		$id = get_the_ID();
-		if($atts['playerid'] !== 0){
+		if ( $atts['playerid'] !== 0 ) {
 			$id = $atts['playerid'];
 		}
-		$wins    = PlayerHelper::get_player_total_wins( $id );
-		$matches = PlayerHelper::get_player_total_matches( $id );
-		$loses   = PlayerHelper::get_player_total_losses( $id );
-		return "<span>$wins</span><span>$matches</span><span>$loses</span>";
+
+
+		return GameHelper::get_total_player_points( $id );
 	}
 
-	public static function Create_PlayerLoses( $atts ): string {
+	public static function PlayerTotalLoses( $atts ): string {
 
 		$atts = shortcode_atts(
 			array(
 				'playerid' => '0',
 			),
 			$atts,
-			'playerscoreloss'
+			'playerlosses'
 		);
-		$id = get_the_ID();
-		if($atts['playerid'] !== 0){
+		$id   = get_the_ID();
+		if ( $atts['playerid'] !== 0 ) {
 			$id = $atts['playerid'];
 		}
-		return PlayerHelper::get_player_total_losses($id);
+
+		return count( GameHelper::get_player_games_lost( $id ) );
 
 
 	}
 
-	public static function Create_PlayerMatches( $atts ): string {
+	public static function PlayerTotalMatches( $atts ): string {
 
 		$atts = shortcode_atts(
 			array(
@@ -51,17 +51,17 @@ class BallShortCodeHandler {
 			$atts,
 			'playermatch'
 		);
-		$id = get_the_ID();
-		if($atts['playerid'] !== 0){
+		$id   = get_the_ID();
+		if ( $atts['playerid'] !== 0 ) {
 			$id = $atts['playerid'];
 		}
 
-		return PlayerHelper::get_player_total_matches( $id );
+		return count( GameHelper::get_all_player_games( $id ) );
 
 
 	}
 
-	public static function Create_PlayerWins( $atts ): string {
+	public static function PlayerTotalWins( $atts ): string {
 
 		$atts = shortcode_atts(
 			array(
@@ -70,12 +70,12 @@ class BallShortCodeHandler {
 			$atts,
 			'playerwins'
 		);
-		$id = get_the_ID();
-		if($atts['playerid'] !== 0){
+		$id   = get_the_ID();
+		if ( $atts['playerid'] !== 0 ) {
 			$id = $atts['playerid'];
 		}
 
-		return   PlayerHelper::get_player_total_wins( $id );
+		return PlayerHelper::get_player_total_wins( $id );
 
 
 	}

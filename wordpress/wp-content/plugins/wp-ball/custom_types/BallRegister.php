@@ -48,7 +48,10 @@ class BallRegister {
 		);
 
 		//add_shortcode( 'playerscore', 'BallShortCodeHandler' );
-		add_shortcode( 'playerwins', 'BallShortCodeHandler::Create_PlayerWins' );
+		add_shortcode( 'playerscore', 'BallShortCodeHandler::PlayerTotalScore' );
+		add_shortcode( 'playerwins', 'BallShortCodeHandler::PlayerTotalLoses' );
+		add_shortcode( 'playerlosses', 'BallShortCodeHandler::PlayerTotalWins' );
+		add_shortcode( 'playerwins', 'BallShortCodeHandler::PlayerMatches' );
 //		add_shortcode( 'playermatch', 'BallShortCodeHandler' );
 //		add_shortcode( 'playerloses', 'BallShortCodeHandler' );
 		$player_type = strtolower( WPBallObjectsRepository::PLAYER_POST_TYPE );
