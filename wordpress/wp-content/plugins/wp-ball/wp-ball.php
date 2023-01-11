@@ -51,11 +51,13 @@ include_once( "repos/ScoreHelper.php" );
 include_once( "repos/MachineHelper.php" );
 include_once( "repos/MatchHelper.php" );
 include_once( "repos/PlayerHelper.php" );
+include_once( "repos/GameHelper.php" );
 include_once( "logic/ScheduleHelper.php" );
 include_once( "custom_types/WPBallMachine.php" );
 include_once( "custom_types/WPBallObjectsRepository.php" );
 include_once( "custom_types/BallAdminNoticeHandler.php" );
 include_once( "custom_types/BallShortCodeHandler.php" );
+
 
 function activate_wp_ball() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-ball-activator.php';

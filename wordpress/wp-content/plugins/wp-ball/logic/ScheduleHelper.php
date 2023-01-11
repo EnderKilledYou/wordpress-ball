@@ -10,17 +10,18 @@ class ScheduleHelper {
 		if ( ! $players ) {
 			return;
 		}
-		$lineup = self::get_player_vs_count( $matches );
-		self::update_lineup_with_players( $players, $lineup );
+		$lineup = self::get_player_vs_count( $matches, $players );
+
 		foreach ( $matches as $match ) {
 			$missing_game_player_ids = self::filter_no_game_players( $match->ID, $players );
 			while ( count( $missing_game_player_ids ) > 0 ) {
 				$player_id = array_shift( $missing_game_player_ids );
-				if(count( $missing_game_player_ids ) === 0){
+				if ( count( $missing_game_player_ids ) === 0 ) {
 					break; //no one to play with odd number
 				}
-				$lowest = self::find_lowest_played( $lineup[ $player_id ] ,$missing_game_player_ids);
-				GameHelper::create_game($match->ID,$player_id,$lowest);
+
+				$lowest = self::find_lowest_played( $lineup[ $player_id ], $missing_game_player_ids );
+				GameHelper::create_game( $id, $match->ID, $player_id, $lowest );
 			}
 
 		}
@@ -51,7 +52,7 @@ class ScheduleHelper {
 	 *
 	 * @return array
 	 */
-	public static function get_player_vs_count( array $matches ): array {
+	public static function get_player_vs_count( array $matches, array $players ): array {
 		$lineup = [];
 		foreach ( $matches as $match ) {
 			$games = GameHelper::get_match_games( $match->ID );
@@ -76,6 +77,15 @@ class ScheduleHelper {
 			}
 
 		}
+		foreach ( $players as $player_ ) {
+
+			$lineup[ $player_->ID ] = [];
+			foreach ( $players as $player ) {
+				if ( ! isset( $lineup[ $player_->ID ][ $player->ID ] ) && $player_->ID !== $player->ID ) {
+					$lineup[ $player_->ID ][ $player->ID ] = 0;
+				}
+			}
+		}
 
 		return $lineup;
 	}
@@ -84,28 +94,25 @@ class ScheduleHelper {
 	 * @param array $players
 	 * @param array $lineup
 	 *
-	 * @return void
+	 * @return int
 	 */
-	public static function update_lineup_with_players( array $players, array $lineup ): void {
-		foreach ( $players as $player ) {
-			foreach ( array_keys( $lineup ) as $player_id ) {
-				if ( ( $player_id !== $player->ID ) && ! isset( $lineup[ $player_id ][ $player->ID ] ) ) {
-					$lineup[ $player_id ][ $player->ID ] = 0;
-				}
-			}
-		}
-	}
 
-	private static function find_lowest_played( array $counter,$playable ) {
 
-		$lowest = $counter[ $playable[0] ];
-		array_shift( $playable );
+	private static function find_lowest_played( array $counter, $playable ) {
+
+		$lowest       = $counter[ $playable[0] ];
+		$lowest_index = 0;
+		$i            = 0;
+
 		foreach ( $playable as $play ) {
+
 			if ( $counter[ $play ] < $lowest ) {
-				$lowest = $counter[ $play ];
+				$lowest       = $counter[ $play ];
+				$lowest_index = $i;
 			}
+			$i ++;
 		}
 
-		return $lowest;
+		return $playable[ $lowest_index ];
 	}
 }

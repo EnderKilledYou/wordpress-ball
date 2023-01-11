@@ -5,45 +5,37 @@ class ScoreHelper {
 	private static string $player_season_wins = 'player_season_wins';
 	private static string $player_season_loss = 'player_season_loss';
 	private static string $player_season_matches = 'player_season_matches';
+	private static string $season_id = 'season_id';
 
-	public static function create_player_score_for_season( int $id, WP_Post $player, string $season_name ): int {
+	public static function create_player_score_for_season( int $season_id, WP_Post $player, string $season_name ): int {
 		$score_post = wp_insert_post( [
-			'post_type'   => WPBallObjectsRepository::SCORE_POST_TYPE,
-			'post_name'   => $season_name . ': ' . $player->post_title,
-			'parent_post' => $id,
-			'post_status '=>'Publish'
+			'post_type'  => WPBallObjectsRepository::SCORE_POST_TYPE,
+			'post_title' => $season_name . ': ' . $player->post_title,
+
+			'post_status ' => 'publish'
 		] );
 
+		update_post_meta( $score_post, self::$season_id, $season_id );
 		update_post_meta( $score_post, self::$score_player_meta_name, $player->ID );
-		update_post_meta( $score_post, self::$player_season_wins, "0" );
-		update_post_meta( $score_post, self::$player_season_loss, "0" );
-		update_post_meta( $score_post, self::$player_season_matches, "0" );
+
+		wp_publish_post( $score_post );
 
 		return $score_post;
 	}
 
-	public static function update_match_outcome( $score_id, $winner_id ): void {
-		$total_matches = get_post_meta( $score_id, self::$player_season_matches, true );
-		$total_matches = (int) $total_matches + 1;
-		update_post_meta( $score_id, self::$player_season_matches, (string)$total_matches );
-		$player_id = self::get_player_id_from_score( $score_id );
-		if ( (int) $winner_id === $player_id ) {
-			$wins = get_post_meta( $score_id, self::$player_season_wins, true );
-			$wins = (int) $wins + 1;
-			update_post_meta( $score_id, self::$player_season_wins, (string)$wins );
-		} else {
-			$loss = get_post_meta( $score_id, self::$player_season_loss, true );
-			$loss = (int) $loss + 1;
-			update_post_meta( $score_id, self::$player_season_loss, (string)$loss );
-		}
-	}
 
-	public static function get_player_score_for_season( int $id, int $player_id ): ?WP_Post {
-		return get_post( [
-			'post_type'   => WPBallObjectsRepository::SCORE_POST_TYPE,
-			'parent_id'   => $id,
+	public static function get_player_score_for_season( int $season_id, int $player_id ): ?WP_Post {
+		$scores = get_posts( [
+			'post_type' => WPBallObjectsRepository::SCORE_POST_TYPE,
+
 			'meta_query'  => array(
-				// meta query takes an array of arrays, watch out for this!
+				'relation' => 'AND',
+				array(
+					'key'   => self::$season_id,
+					'value' => $season_id,
+					//   'compare' => 'IN'
+				),
+
 				array(
 					'key'   => self::$score_player_meta_name,
 					'value' => $player_id,
@@ -51,7 +43,13 @@ class ScoreHelper {
 				)
 			),
 			'post_status' => BallPostSaveHandler::$all_posts
+
 		] );
+		if ( count( $scores ) > 0 ) {
+			return $scores[0];
+		}
+
+		return null;
 
 
 	}
@@ -73,7 +71,7 @@ class ScoreHelper {
 
 				// meta query takes an array of arrays, watch out for this!
 				array(
-					'key'   => 'score_player_id',
+					'key'   => self::$score_player_meta_name,
 					'value' => $player_id,
 					//   'compare' => 'IN'
 				)
@@ -89,14 +87,94 @@ class ScoreHelper {
 	 *
 	 * @return int[]|WP_Post[]
 	 */
-	public static function get_season_scores( $id ): array {
+	public static function get_season_scores( $season_id ): array {
 
 		return get_posts( [
-			'post_type'   => WPBallObjectsRepository::SCORE_POST_TYPE,
-			'parent_id'   => $id,
-			'post_status' => BallPostSaveHandler::$all_posts
+			'post_type'      => WPBallObjectsRepository::SCORE_POST_TYPE,
+			'meta_query'     => array(
+
+				array(
+					'key'   => self::$season_id,
+					'value' => $season_id,
+
+				)
+			),
+			'posts_per_page' => - 1,
+			'post_status'    => BallPostSaveHandler::$all_posts,
+
 		] );
 
 
+	}
+
+	public static function get_total_player_points( int $score_id ): int {
+		$player_id = self::get_player_id_from_score( $score_id );
+		$games     = GameHelper::get_player_games( $player_id );
+		$sum       = 0;
+		foreach ( $games as $game ) {
+			$sum += GameHelper::get_player_score_by_id( $game->ID );
+		}
+
+		return $sum;
+	}
+
+	public static function get_total_player_points_for_season( int $season_id ): int {
+		$scores = self::get_season_scores( $season_id );
+		$sum    = 0;
+		foreach ( $scores as $score ) {
+			$score_id  = $score->ID;
+			$player_id = self::get_player_id_from_score( $score_id );
+			$games     = GameHelper::get_player_games( $player_id );
+
+			foreach ( $games as $game ) {
+				$sum += GameHelper::get_player_score_by_id( $game->ID );
+			}
+		}
+
+		return $sum;
+	}
+
+	public static function get_player_losses( int $score_id ): int {
+		$player_id = self::get_player_id_from_score( $score_id );
+		$games     = GameHelper::get_lost_games( $player_id );
+
+		return count( $games );
+
+	}
+
+	public static function get_player_wins( int $score_id ): int {
+		$player_id = self::get_player_id_from_score( $score_id );
+		$games     = GameHelper::get_won_games( $player_id );
+
+		return count( $games );
+	}
+
+	public static function get_player_matches( int $score_id ): int {
+		$player_id = self::get_player_id_from_score( $score_id );
+		$games     = GameHelper::get_player_games( $player_id );
+
+		return count( $games );
+	}
+
+	public static function get_player_season_losses( int $score_id ): int {
+		$player_id = self::get_player_id_from_score( $score_id );
+		$games     = GameHelper::get_lost_games( $player_id );
+
+		return count( $games );
+
+	}
+
+	public static function get_player_season_wins( int $score_id ): int {
+		$player_id = self::get_player_id_from_score( $score_id );
+		$games     = GameHelper::get_won_games( $player_id );
+
+		return count( $games );
+	}
+
+	public static function get_player_season_matches( int $score_id ): int {
+		$player_id = self::get_player_id_from_score( $score_id );
+		$games     = GameHelper::get_player_games( $player_id );
+
+		return count( $games );
 	}
 }

@@ -6,6 +6,7 @@ function wp_ball_make_multiple_select_pages( $output ) {
 
 class BallRegister {
 	public static function RegisterPostTypes(): void {
+		self::RegisterGames();
 		self::RegisterPLAYER();
 		self::RegisterMATCH();
 		self::RegisterSCORE();
@@ -73,7 +74,7 @@ class BallRegister {
 	/**
 	 * @return WP_Error|WP_Post_Type
 	 */
-	public static function RegisterGame() {
+	public static function RegisterGames() {
 		$args                = self::get_default_args();
 		$args['description'] = "Game Data ";
 		$args['labels']      = array(
@@ -96,6 +97,8 @@ class BallRegister {
 			'singular_name' => __( 'Match' )
 		);
 		add_action( "save_post_" . WPBallObjectsRepository::MATCH_POST_TYPE, "BallPostSaveHandler::SaveMatch" );
+		add_filter('the_excerpt', 'BallExcerptHandler::MatchHandler');
+
 
 		return register_post_type( WPBallObjectsRepository::MATCH_POST_TYPE, $args );
 	}
@@ -112,9 +115,10 @@ class BallRegister {
 		);
 		$SEASON_POST_TYPE    = strtolower( WPBallObjectsRepository::SEASON_POST_TYPE );
 		add_action( "save_post_{$SEASON_POST_TYPE}", "BallPostSaveHandler::SaveSeason" );
-		add_action( "edit_form_after_title", "BallPostFormHandler::EditSeason" );
-
+		add_action( "edit_form_after_title", "BallPostFormHandler::Edit_form_after_titles" );
+		add_action( "save_post_{$SEASON_POST_TYPE}", "BallPostSaveHandler::RebuildSchedule" );
 		return register_post_type( WPBallObjectsRepository::SEASON_POST_TYPE, $args );
+
 	}
 
 	/**
@@ -145,7 +149,8 @@ class BallRegister {
 				'editor',
 				'page-attributes',
 				'author',
-				'thumbnail'
+				'thumbnail',
+				'excerpt'
 			),
 
 			'public' => true, // bool (default is FALSE)
