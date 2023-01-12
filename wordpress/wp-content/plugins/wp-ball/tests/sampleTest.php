@@ -62,10 +62,32 @@ final class StackTest extends TestCase {
 //	}
 
 	public function test_update_2sseason(): void {
- 		$player_names     = [ 'john', 'tim', 'doug', 'frank', 'bilbo', 'tommy', 'francis', 'johhny' ];
+		$player_names     = [ 'john', 'tim', 'doug', 'frank', 'bilbo', 'tommy', 'francis', 'johhny' ];
+		$machine_names    = [ 'mach1', 'mach2', 'mach3' ];
 		$player_avg_score = [ 1000, 1000, 10000, 10000, 10000, 100000, 1000000, 1000000 ];
 		$players          = [];
 
+		foreach ( $machine_names as $machine_name ) {
+			$player_already_created = get_posts( [
+				'post_type'   => WPBallObjectsRepository::MACHINE_POST_TYPE,
+				"title"       => $machine_name,
+				'post_status' => BallPostSaveHandler::$all_posts
+			] );
+
+			if ( count( $player_already_created ) === 0 ) {
+				$players[] = $tmp_id = wp_insert_post( [
+					'post_type'    => WPBallObjectsRepository::MACHINE_POST_TYPE,
+					'post_title'   => $machine_name,
+					'post_status ' => 'publish',
+					'post_content' => '',
+
+				] );
+				wp_publish_post( $tmp_id );
+
+			}
+
+
+		}
 		foreach ( $player_names as $player_name ) {
 			$player_already_created = get_posts( [
 				'post_type'   => WPBallObjectsRepository::PLAYER_POST_TYPE,

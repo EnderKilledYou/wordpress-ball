@@ -43,7 +43,7 @@ class MatchHelper {
 
 		$stat = wp_insert_post( [
 			'post_type'  => WPBallObjectsRepository::MATCH_POST_TYPE,
-			'post_title' => "Week $week,$date",
+			'post_title' => "Week $week: $date",
 
 			'post_status ' => 'publish'
 		] );

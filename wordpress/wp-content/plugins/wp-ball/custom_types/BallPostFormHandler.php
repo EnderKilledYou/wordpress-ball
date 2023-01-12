@@ -128,7 +128,14 @@ class BallPostFormHandler {
 
                     </select>
                 </label>
-
+                <label>
+                    Generate Total Games per week per player:
+                    <input name="total_games" value="4">
+                </label>
+                <label>
+                    Generate Total weeks:
+                    <input name="total_weeks" value="7">
+                </label>
             </div>
         </div>
 

@@ -15,21 +15,27 @@ class ScheduleHelper {
 
 			$lineup = self::get_player_vs_count( $matches, $players );
 			foreach ( $players as $player ) {
-				$existing_games = GameHelper::get_player_games_for_match( $player->ID, $match->ID );
-				if ( count( $existing_games ) > $i ) {
-					continue;
-				}
-				$player_id = $player->ID;
-				$all_but   = array_values( array_filter( $players, static function ( $e ) use ( $player_id ) {
+
+				$player_id      = $player->ID;
+				$all_but        = array_values( array_filter( $players, static function ( $e ) use ( $player_id ) {
 					return $player_id !== $e->ID;
 				} ) );
-				$avg       = self::get_player_score_avg( $player_id );
-				$lowest    = self::find_lowest_played( $lineup[ $player_id ], $all_but, $avg, -- $match_count === 0 );
-				GameHelper::create_game( $id, $match->ID,$total_games, $player_id, $lowest );
+				$avg            = self::get_player_score_avg( $player_id );
+				$lowest         = self::find_lowest_played( $lineup[ $player_id ], $all_but, $avg, -- $match_count === 0 );
+				$lowest_machine = MachineHelper::get_lowest_machine( $player_id, $lowest );
 
+				GameHelper::create_game( $id, $match->ID, $total_games, $player_id, $lowest, $lowest_machine );
+				MachineHelper::increment_total_games_played( $lowest_machine );
 			}
 
 		}
+		$players_table = self::create_player_table( $players );
+		unset( $_REQUEST['generate_matches'] );
+		wp_update_post( [
+			'post_content' => $players_table,
+			'ID'           => $id,
+		] );
+		//	$matches_table = self::create_match_table( MatchHelper::get_season_matches( $id ) );
 
 
 	}
@@ -157,5 +163,34 @@ class ScheduleHelper {
 		}
 
 		return $avg;
+	}
+
+	private static function create_player_table( array $players ): string {
+		$tbl_header = '<h2 class="screen-reader-text">Players list</h2>';
+		$tbl        = '<table class="wp-list-table widefat fixed striped table-view-excerpt posts">
+	<thead>
+	<tr>
+ 
+		<th scope="col" id="title" class="manage-column column-title column-primary sortable desc">
+			<span>Player</span>
+		</th>
+		</tr>
+	</thead>
+
+	<tbody id="the-list">
+	';
+		foreach ( $players as $player ) {
+			$link = get_permalink( $player->ID );
+			$tbl  .= '<tr><td><a href="' . $link . '">' . $player->post_title . '</a></td></tr>';
+		}
+		$tbl .= '
+			 </tbody>
+
+	 
+
+</table>';
+
+		return $tbl;
+
 	}
 }

@@ -51,7 +51,7 @@ class BallRegister {
 		add_shortcode( 'playerscore', 'BallShortCodeHandler::PlayerTotalScore' );
 		add_shortcode( 'playerwins', 'BallShortCodeHandler::PlayerTotalLoses' );
 		add_shortcode( 'playerlosses', 'BallShortCodeHandler::PlayerTotalWins' );
-		add_shortcode( 'playerwins', 'BallShortCodeHandler::PlayerMatches' );
+		add_shortcode( 'playerwins', 'BallShortCodeHandler::PlayerTotalWins' );
 //		add_shortcode( 'playermatch', 'BallShortCodeHandler' );
 //		add_shortcode( 'playerloses', 'BallShortCodeHandler' );
 		$player_type = strtolower( WPBallObjectsRepository::PLAYER_POST_TYPE );
@@ -85,7 +85,7 @@ class BallRegister {
 			'singular_name' => __( 'Game' )
 		);
 		add_action( "save_post_" . WPBallObjectsRepository::GAME_POST_TYPE, "BallPostSaveHandler::SaveGame" );
-
+		add_shortcode( 'match_table', 'BallShortCodeHandler::MatchTable' );
 		return register_post_type( WPBallObjectsRepository::GAME_POST_TYPE, $args );
 	}
 

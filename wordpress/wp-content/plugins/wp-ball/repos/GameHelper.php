@@ -220,6 +220,47 @@ class GameHelper {
 	/**
 	 * @return WP_Post[]
 	 */
+	public static function get_all_vs_player_games( $player1_id, $player2_id ): array {
+		return get_posts( [
+			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
+
+			'post_status' => BallPostSaveHandler::$all_posts,
+			'meta_query'  => array(
+				array(
+					'relation' => 'OR',
+					// meta query takes an array of arrays, watch out for this!
+					array(
+						'key'   => self::$player_1,
+						'value' => $player1_id,
+						//   'compare' => 'IN'
+					),
+					array(
+						'key'   => self::$player_2,
+						'value' => $player2_id,
+						//   'compare' => 'IN'
+					),
+					array(
+						'relation' => 'OR',
+						// meta query takes an array of arrays, watch out for this!
+						array(
+							'key'   => self::$player_1,
+							'value' => $player2_id,
+							//   'compare' => 'IN'
+						),
+						array(
+							'key'   => self::$player_2,
+							'value' => $player1_id,
+							//   'compare' => 'IN'
+						)
+					)
+				)
+			),
+		] );
+	}
+
+	/**
+	 * @return WP_Post[]
+	 */
 	public static function get_all_player_games( $player_id ): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
@@ -246,6 +287,7 @@ class GameHelper {
 	private static string $winner_id = 'winner_id';
 	private static string $player_1 = 'player_1';
 	private static string $match_id = 'match_id';
+	private static string $machine_id = 'machine_id';
 	private static string $season_id = 'season_id';
 	private static string $total_games = 'total_games';
 	private static string $player_2 = 'player_2';
@@ -256,7 +298,7 @@ class GameHelper {
 	private static string $game_state_pending = 'pending';
 
 
-	public static function update_game_complete( $game_id, bool $is_winner_player1 ): void {
+	public static function update_game_complete( $game_id, bool $is_winner_player1, $game_count ): void {
 		$player1_id = self::get_player1_ID( $game_id );
 		$player2_id = self::get_player1_ID( $game_id );
 		if ( $is_winner_player1 ) {
@@ -270,12 +312,12 @@ class GameHelper {
 	}
 
 
-	public static function update_player2_score( $game_id, $player2_score ): void {
-		update_post_meta( $game_id, self::$player_2_score, $player2_score );
+	public static function update_player2_score( $game_id, $player2_score, $game_count = 0 ): void {
+		update_post_meta( $game_id, self::$player_2_score . '_' . $game_count, $player2_score );
 	}
 
-	public static function update_player1_score( $game_id, $player1_score ): void {
-		update_post_meta( $game_id, self::$player_1_score, $player1_score );
+	public static function update_player1_score( $game_id, $player1_score, $game_count = 0 ): void {
+		update_post_meta( $game_id, self::$player_1_score . '_' . $game_count, $player1_score );
 	}
 
 	/**
@@ -301,8 +343,8 @@ class GameHelper {
 	 *
 	 * @return mixed
 	 */
-	public static function get_player1_score( $game_id ) {
-		return get_post_meta( $game_id, self::$player_1_score, true );
+	public static function get_player1_score( $game_id, $game_count = 0 ) {
+		return get_post_meta( $game_id, self::$player_1_score . '_' . $game_count, true );
 	}
 
 	/**
@@ -326,7 +368,7 @@ class GameHelper {
 			return self::get_player1_score( $game_id );
 		}
 
-		return self::get_player2_score( $game_id );;
+		return self::get_player2_score( $game_id );
 	}
 
 	/**
@@ -349,16 +391,17 @@ class GameHelper {
 	 *
 	 * @return mixed
 	 */
-	public static function get_player2_score( $game_id ) {
-		return get_post_meta( $game_id, self::$player_2_score, true );
+	public static function get_player2_score( $game_id, $game_count = 0 ) {
+		return get_post_meta( $game_id, self::$player_2_score . '_' . $game_count, true );
 	}
 
-	public static function create_game( int $season_id, int $match_id, $total_games,$player1_id, $player2_id ): void {
+	public static function create_game( int $season_id, int $match_id, $total_games, $player1_id, $player2_id, $lowest_machine_id ): void {
 		$player1 = PlayerHelper::get_player( $player1_id );
 		$player2 = PlayerHelper::get_player( $player2_id );
+		$machine = get_post( $lowest_machine_id );
 		$stat    = wp_insert_post( [
 			'post_type'    => WPBallObjectsRepository::GAME_POST_TYPE,
-			'post_title'   => "$player1->post_title vs $player2->post_title",
+			'post_title'   => "$player1->post_title vs $player2->post_title on " . $machine->post_title,
 			'post_content' => '0 to 0',
 			'post_status ' => 'publish'
 		] );
@@ -367,9 +410,14 @@ class GameHelper {
 		update_post_meta( $stat, self::$total_games, $total_games );
 		update_post_meta( $stat, self::$match_id, $match_id );
 		update_post_meta( $stat, self::$player_1, $player1_id );
+		update_post_meta( $stat, self::$machine_id, $lowest_machine_id );
 		update_post_meta( $stat, self::$player_2, $player2_id );
-		self::update_player1_score( $stat, 0 );
-		self::update_player2_score( $stat, 0 );
+		for ( $i = 0; $i < $total_games; $i ++ ) {
+
+
+			self::update_player1_score( $stat, 0, $i );
+			self::update_player2_score( $stat, 0, $i );
+		}
 		update_post_meta( $stat, self::$game_state, self::$game_state_pending );
 	}
 
@@ -398,6 +446,15 @@ class GameHelper {
 
 	public static function get_season_of_game( int $ID ): int {
 		return (int) get_post_meta( $ID, self::$season_id, true );
+	}
+
+	public static function get_game_count( $game_id ): int {
+		return (int) get_post_meta( $game_id, self::$total_games, true );
+	}
+
+	public static function get_game_machine( int $game_id ): int {
+		return (int) get_post_meta( $game_id, self::$machine_id, true );
+
 	}
 
 }
