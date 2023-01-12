@@ -7,7 +7,7 @@ class GameHelper {
 	public static function get_match_games( int $match_id ): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts,
 			'meta_query'  => array(
 
@@ -26,7 +26,7 @@ class GameHelper {
 	public static function get_player_games_for_match( $player_id, $match_id ): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts,
 			'meta_query'  => array(
 				'relation' => 'AND',
@@ -59,7 +59,7 @@ class GameHelper {
 	public static function get_player_games_lost( $player_id ): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts,
 			'meta_query'  => array(
 
@@ -80,7 +80,7 @@ class GameHelper {
 	public static function get_won_games( $player_id ): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts,
 			'meta_query'  => array(
 
@@ -101,7 +101,7 @@ class GameHelper {
 	public static function get_lost_games_by_season( $player_id, $season_id ): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts,
 			'meta_query'  => array(
 
@@ -123,7 +123,7 @@ class GameHelper {
 	public static function get_won_games_by_season( $player_id, $season_id ): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts,
 			'meta_query'  => array(
 
@@ -145,7 +145,7 @@ class GameHelper {
 	public static function get_games_by_season( $season_id ): array {
 		return get_posts( [
 				'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
-
+				'posts_per_page' => - 1,
 				'post_status' => BallPostSaveHandler::$all_posts,
 				'meta_query'  => array(
 
@@ -162,7 +162,7 @@ class GameHelper {
 	public static function get_player_games_by_season( $player_id, $season_id ): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts,
 			'meta_query'  => array(
 				'relation' => 'AND',
@@ -191,7 +191,7 @@ class GameHelper {
 	public static function get_all_player_complete_games( $player_id ): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts,
 			'meta_query'  => array(
 				'relation' => 'AND',
@@ -223,7 +223,7 @@ class GameHelper {
 	public static function get_all_vs_player_games( $player1_id, $player2_id ): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts,
 			'meta_query'  => array(
 				array(
@@ -264,7 +264,7 @@ class GameHelper {
 	public static function get_all_player_games( $player_id ): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts,
 			'meta_query'  => array(
 				'relation' => 'OR',

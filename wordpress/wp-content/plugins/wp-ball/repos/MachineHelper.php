@@ -8,7 +8,7 @@ class MachineHelper {
 	public static function get_machines(): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::MACHINE_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts
 		] );
 
@@ -20,7 +20,7 @@ class MachineHelper {
 
 		$machines = get_posts( [
 			'post_type' => WPBallObjectsRepository::MACHINE_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts
 		] );
 		$counter  = [];

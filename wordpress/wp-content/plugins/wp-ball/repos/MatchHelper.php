@@ -11,7 +11,7 @@ class MatchHelper {
 	public static function get_matches(): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::MATCH_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts
 		] );
 

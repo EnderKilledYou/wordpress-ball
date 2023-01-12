@@ -12,7 +12,7 @@ class PlayerHelper {
 	public static function get_seasons(): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::SEASON_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts
 		] );
 
@@ -24,7 +24,7 @@ class PlayerHelper {
 	public static function get_players(): array {
 		return get_posts( [
 			'post_type' => WPBallObjectsRepository::PLAYER_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'post_status' => BallPostSaveHandler::$all_posts
 		] );
 
@@ -100,6 +100,7 @@ class PlayerHelper {
 	public static function get_player_statistic( $playerID ): ?WP_Post {
 		$post_list = get_posts( [
 			'post_type'   => WPBallObjectsRepository::STATISTIC_POST_TYPE,
+			'posts_per_page' => - 1,
 			'meta_query'  => array(
 				// meta query takes an array of arrays, watch out for this!
 				array(

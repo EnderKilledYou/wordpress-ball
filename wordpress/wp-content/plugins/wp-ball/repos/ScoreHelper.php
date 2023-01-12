@@ -27,7 +27,7 @@ class ScoreHelper {
 	public static function get_player_score_for_season( int $season_id, int $player_id ): ?WP_Post {
 		$scores = get_posts( [
 			'post_type' => WPBallObjectsRepository::SCORE_POST_TYPE,
-
+			'posts_per_page' => - 1,
 			'meta_query'  => array(
 				'relation' => 'AND',
 				array(
@@ -67,6 +67,7 @@ class ScoreHelper {
 
 		return get_posts( [
 			'post_type'   => WPBallObjectsRepository::SCORE_POST_TYPE,
+			'posts_per_page' => - 1,
 			'meta_query'  => array(
 
 				// meta query takes an array of arrays, watch out for this!
@@ -91,6 +92,7 @@ class ScoreHelper {
 
 		return get_posts( [
 			'post_type'      => WPBallObjectsRepository::SCORE_POST_TYPE,
+			'posts_per_page' => - 1,
 			'meta_query'     => array(
 
 				array(
