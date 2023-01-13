@@ -25,29 +25,25 @@ class BallPostSaveHandler {
 			return;
 		}
 		if ( isset( $_REQUEST['player1_score'], $_REQUEST['game_count'] ) && ctype_digit( $_REQUEST['player1_score'] ) && ctype_digit( $_REQUEST['game_count'] ) ) {
-			GameHelper::update_player1_score( $id, (int) $_REQUEST['player1_score'], (int)   $_REQUEST['game_count'] );
+			GameHelper::update_player1_score( $id, (int) $_REQUEST['player1_score'], (int) $_REQUEST['game_count'] );
 		}
-		if ( isset( $_REQUEST['player2_score'], $_REQUEST['game_count'] ) && ctype_digit( $_REQUEST['player1_score'] )  && ctype_digit( $_REQUEST['game_count'] )  ) {
-			GameHelper::update_player2_score( $id, (int) $_REQUEST['player2_score'] , (int)   $_REQUEST['game_count']);
+		if ( isset( $_REQUEST['player2_score'], $_REQUEST['game_count'] ) && ctype_digit( $_REQUEST['player1_score'] ) && ctype_digit( $_REQUEST['game_count'] ) ) {
+			GameHelper::update_player2_score( $id, (int) $_REQUEST['player2_score'], (int) $_REQUEST['game_count'] );
 		}
-		if ( isset( $_REQUEST['game_complete'], $_REQUEST['winner_id'] , $_REQUEST['game_count']  ) && ctype_digit( $_REQUEST['game_complete'] ) && ctype_digit( $_REQUEST['winner_id'] ) && ctype_digit( $_REQUEST['game_count'] ) ) {
+		if ( isset( $_REQUEST['game_complete'], $_REQUEST['winner_id'], $_REQUEST['game_count'] ) && ctype_digit( $_REQUEST['game_complete'] ) && ctype_digit( $_REQUEST['winner_id'] ) && ctype_digit( $_REQUEST['game_count'] ) ) {
 			$player1          = GameHelper::get_player1_ID( $id );
-			$player2          = GameHelper::get_player2_ID( $id );
 			$winner_id        = (int) $_REQUEST['winner_id'];
 			$bwinner_player_1 = $player1 === $winner_id;
-			GameHelper::update_game_complete( $id, $bwinner_player_1,$_REQUEST['game_complete'] );
+			GameHelper::update_game_complete( $id, $bwinner_player_1, $_REQUEST['game_count'] );
 
-			PlayerHelper::update_game_outcome( $player1, $bwinner_player_1 ,$_REQUEST['game_complete']);
-			PlayerHelper::update_game_outcome( $player2, $player2 === $winner_id ,$_REQUEST['game_complete']);
 		}
-		if ( isset( $_REQUEST['game_start'] ) ) {
-			GameHelper::update_game_started( $id );
-		}
+
 	}
 
 	public static function SaveSeason( $id ): void {
 
 		if ( self::CheckIfAutoDraft( $id ) === null ) {
+			wp_update_post( [ 'ID' => $id, 'post_content' => '[season_table]' ] );
 			return;
 		}
 		$post_title = get_the_title( $id );
@@ -87,7 +83,7 @@ class BallPostSaveHandler {
 		for ( $i = 0; $i < $total_weeks; $i ++ ) {
 			if ( ! self::find_match_by_week( $matches, $timestamp ) ) {
 
-				$match_id = MatchHelper::create_match( $id, $i + 1, $season->post_title . ' ' . date( "m/d/Y", $timestamp ) );
+				$match_id = MatchHelper::create_match( $id, $i + 1, $season->post_title, date( "m/d/Y", $timestamp ) );
 			}
 			$timestamp = strtotime( "+ 7 days", $timestamp );
 		}

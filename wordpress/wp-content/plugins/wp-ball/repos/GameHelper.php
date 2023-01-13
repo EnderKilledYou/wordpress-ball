@@ -6,10 +6,10 @@ class GameHelper {
 	 */
 	public static function get_match_games( int $match_id ): array {
 		return get_posts( [
-			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::GAME_POST_TYPE,
 			'posts_per_page' => - 1,
-			'post_status' => BallPostSaveHandler::$all_posts,
-			'meta_query'  => array(
+			'post_status'    => BallPostSaveHandler::$all_posts,
+			'meta_query'     => array(
 
 				array(
 					'key'   => self::$match_id,
@@ -25,10 +25,10 @@ class GameHelper {
 	 */
 	public static function get_player_games_for_match( $player_id, $match_id ): array {
 		return get_posts( [
-			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::GAME_POST_TYPE,
 			'posts_per_page' => - 1,
-			'post_status' => BallPostSaveHandler::$all_posts,
-			'meta_query'  => array(
+			'post_status'    => BallPostSaveHandler::$all_posts,
+			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
 					'key'   => self::$match_id,
@@ -58,10 +58,10 @@ class GameHelper {
 	 */
 	public static function get_player_games_lost( $player_id ): array {
 		return get_posts( [
-			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::GAME_POST_TYPE,
 			'posts_per_page' => - 1,
-			'post_status' => BallPostSaveHandler::$all_posts,
-			'meta_query'  => array(
+			'post_status'    => BallPostSaveHandler::$all_posts,
+			'meta_query'     => array(
 
 				// meta query takes an array of arrays, watch out for this!
 				array(
@@ -79,10 +79,10 @@ class GameHelper {
 	 */
 	public static function get_won_games( $player_id ): array {
 		return get_posts( [
-			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::GAME_POST_TYPE,
 			'posts_per_page' => - 1,
-			'post_status' => BallPostSaveHandler::$all_posts,
-			'meta_query'  => array(
+			'post_status'    => BallPostSaveHandler::$all_posts,
+			'meta_query'     => array(
 
 				// meta query takes an array of arrays, watch out for this!
 				array(
@@ -100,10 +100,10 @@ class GameHelper {
 	 */
 	public static function get_lost_games_by_season( $player_id, $season_id ): array {
 		return get_posts( [
-			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::GAME_POST_TYPE,
 			'posts_per_page' => - 1,
-			'post_status' => BallPostSaveHandler::$all_posts,
-			'meta_query'  => array(
+			'post_status'    => BallPostSaveHandler::$all_posts,
+			'meta_query'     => array(
 
 				// meta query takes an array of arrays, watch out for this!
 				array(
@@ -122,10 +122,10 @@ class GameHelper {
 	 */
 	public static function get_won_games_by_season( $player_id, $season_id ): array {
 		return get_posts( [
-			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::GAME_POST_TYPE,
 			'posts_per_page' => - 1,
-			'post_status' => BallPostSaveHandler::$all_posts,
-			'meta_query'  => array(
+			'post_status'    => BallPostSaveHandler::$all_posts,
+			'meta_query'     => array(
 
 				// meta query takes an array of arrays, watch out for this!
 				array(
@@ -144,10 +144,10 @@ class GameHelper {
 	 */
 	public static function get_games_by_season( $season_id ): array {
 		return get_posts( [
-				'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
+				'post_type'      => WPBallObjectsRepository::GAME_POST_TYPE,
 				'posts_per_page' => - 1,
-				'post_status' => BallPostSaveHandler::$all_posts,
-				'meta_query'  => array(
+				'post_status'    => BallPostSaveHandler::$all_posts,
+				'meta_query'     => array(
 
 					array( 'key' => self::$season_id, 'value' => $season_id )
 				)
@@ -161,10 +161,10 @@ class GameHelper {
 	 */
 	public static function get_player_games_by_season( $player_id, $season_id ): array {
 		return get_posts( [
-			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::GAME_POST_TYPE,
 			'posts_per_page' => - 1,
-			'post_status' => BallPostSaveHandler::$all_posts,
-			'meta_query'  => array(
+			'post_status'    => BallPostSaveHandler::$all_posts,
+			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
 					'relation' => 'OR',
@@ -190,10 +190,10 @@ class GameHelper {
 	 */
 	public static function get_all_player_complete_games( $player_id ): array {
 		return get_posts( [
-			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::GAME_POST_TYPE,
 			'posts_per_page' => - 1,
-			'post_status' => BallPostSaveHandler::$all_posts,
-			'meta_query'  => array(
+			'post_status'    => BallPostSaveHandler::$all_posts,
+			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
 					'key'   => self::$game_state,
@@ -222,10 +222,10 @@ class GameHelper {
 	 */
 	public static function get_all_vs_player_games( $player1_id, $player2_id ): array {
 		return get_posts( [
-			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::GAME_POST_TYPE,
 			'posts_per_page' => - 1,
-			'post_status' => BallPostSaveHandler::$all_posts,
-			'meta_query'  => array(
+			'post_status'    => BallPostSaveHandler::$all_posts,
+			'meta_query'     => array(
 				array(
 					'relation' => 'OR',
 					// meta query takes an array of arrays, watch out for this!
@@ -263,10 +263,10 @@ class GameHelper {
 	 */
 	public static function get_all_player_games( $player_id ): array {
 		return get_posts( [
-			'post_type' => WPBallObjectsRepository::GAME_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::GAME_POST_TYPE,
 			'posts_per_page' => - 1,
-			'post_status' => BallPostSaveHandler::$all_posts,
-			'meta_query'  => array(
+			'post_status'    => BallPostSaveHandler::$all_posts,
+			'meta_query'     => array(
 				'relation' => 'OR',
 				// meta query takes an array of arrays, watch out for this!
 				array(
@@ -285,6 +285,7 @@ class GameHelper {
 
 	private static string $loser_id = 'loser_id';
 	private static string $winner_id = 'winner_id';
+	private static string $match_winner = 'match_winner';
 	private static string $player_1 = 'player_1';
 	private static string $match_id = 'match_id';
 	private static string $machine_id = 'machine_id';
@@ -302,10 +303,10 @@ class GameHelper {
 		$player1_id = self::get_player1_ID( $game_id );
 		$player2_id = self::get_player1_ID( $game_id );
 		if ( $is_winner_player1 ) {
-			update_post_meta( $game_id, self::$winner_id, $player1_id );
+			update_post_meta( $game_id, self::get_winner_key( $game_count ), $player1_id );
 			update_post_meta( $game_id, self::$loser_id, $player2_id );
 		} else {
-			update_post_meta( $game_id, self::$winner_id, $player2_id );
+			update_post_meta( $game_id, self::get_winner_key( $game_count ), $player2_id );
 			update_post_meta( $game_id, self::$loser_id, $player1_id );
 		}
 		update_post_meta( $game_id, self::$game_state, self::$game_state_complete );
@@ -352,8 +353,8 @@ class GameHelper {
 	 *
 	 * @return mixed
 	 */
-	public static function get_winner_id( $game_id ) {
-		return get_post_meta( $game_id, self::$winner_id, true );
+	public static function get_winner_id( $game_id, $game_count ) {
+		return get_post_meta( $game_id, self::get_winner_key( $game_count ), true );
 	}
 
 	/**
@@ -361,9 +362,9 @@ class GameHelper {
 	 *
 	 * @return mixed
 	 */
-	public static function get_winner_score_by_id( $game_id ) {
+	public static function get_winner_score_by_id( $game_id, $game_count ) {
 		$player1_id = self::get_player1_ID( $game_id );
-		$winner_id  = self::get_winner_id( $game_id );
+		$winner_id  = self::get_winner_id( $game_id, $game_count );
 		if ( (int) $winner_id === (int) $player1_id ) {
 			return self::get_player1_score( $game_id );
 		}
@@ -376,14 +377,14 @@ class GameHelper {
 	 *
 	 * @return mixed
 	 */
-	public static function get_player_score_from_game( int $player_id, int $game_id ) {
+	public static function get_player_score_from_game( int $player_id, int $game_id, $game_count ) {
 		$player1_id = self::get_player1_ID( $game_id );
 
 		if ( $player_id === (int) $player1_id ) {
-			return self::get_player1_score( $game_id );
+			return self::get_player1_score( $game_id, $game_count );
 		}
 
-		return self::get_player2_score( $game_id );
+		return self::get_player2_score( $game_id, $game_count );
 	}
 
 	/**
@@ -402,7 +403,7 @@ class GameHelper {
 		$stat    = wp_insert_post( [
 			'post_type'    => WPBallObjectsRepository::GAME_POST_TYPE,
 			'post_title'   => "$player1->post_title vs $player2->post_title on " . $machine->post_title,
-			'post_content' => '0 to 0',
+			'post_content' => '[game_table]',
 			'post_status ' => 'publish'
 		] );
 		wp_publish_post( $stat );
@@ -456,5 +457,82 @@ class GameHelper {
 		return (int) get_post_meta( $game_id, self::$machine_id, true );
 
 	}
+
+
+	public static function get_highest_score( $player_id ): int {
+		$games = self::get_all_player_games( $player_id );
+		$top   = 0;
+		$best  = 0;
+		foreach ( $games as $game ) {
+			$highest = self::get_highest_score_for_player_of_game( $player_id, $game->ID );
+			if ( $highest > $top ) {
+				$best = $game->ID;
+				$top  = $highest;
+			}
+		}
+
+		return $best;
+	}
+
+//todo: finish
+	public static function get_best_win_loss( $player_id ) {
+		$games = self::get_all_player_games( $player_id );
+		$top   = 0;
+		$best  = 0;
+		foreach ( $games as $game ) {
+			$highest = self::get_highest_score_for_player_of_game( $player_id, $game->ID );
+			if ( $highest > $top ) {
+				$best = $game->ID;
+				$top  = $highest;
+			}
+		}
+
+		return $best;
+	}
+
+	/**
+	 * @param $game_count
+	 *
+	 * @return string
+	 */
+	public static function get_loser_key( $game_count ): string {
+		return self::$loser_id . '_' . $game_count;
+	}
+
+	/**
+	 * @param $game_count
+	 *
+	 * @return string
+	 */
+	public static function get_winner_key( $game_count ): string {
+		return self::$winner_id . '_' . $game_count;
+	}
+
+	private static function get_player_win_count_for_game( $player_id, int $game_id ): int {
+		$total_games = self::get_game_count( $game_id );
+		$wins        = 0;
+		for ( $i = 0; $i < $total_games; $i ++ ) {
+			if ( self::get_winner_id( $game_id, $i ) === $player_id ) {
+				$wins ++;
+			}
+		}
+
+		return $wins;
+	}
+
+	private static function get_highest_score_for_player_of_game( $player_id, int $game_id ) {
+		$total_games = self::get_game_count( $game_id );
+		$highest     = 0;
+		for ( $i = 0; $i < $total_games; $i ++ ) {
+			$game_score = self::get_player_score_from_game( $player_id, $game_id, $i );
+			if ( $game_score > $highest ) {
+				$highest = $game_score;
+			}
+		}
+
+		return $highest;
+	}
+
+
 
 }

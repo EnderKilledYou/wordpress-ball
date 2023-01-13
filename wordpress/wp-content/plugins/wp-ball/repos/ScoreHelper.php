@@ -26,9 +26,9 @@ class ScoreHelper {
 
 	public static function get_player_score_for_season( int $season_id, int $player_id ): ?WP_Post {
 		$scores = get_posts( [
-			'post_type' => WPBallObjectsRepository::SCORE_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::SCORE_POST_TYPE,
 			'posts_per_page' => - 1,
-			'meta_query'  => array(
+			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
 					'key'   => self::$season_id,
@@ -42,7 +42,7 @@ class ScoreHelper {
 					//   'compare' => 'IN'
 				)
 			),
-			'post_status' => BallPostSaveHandler::$all_posts
+			'post_status'    => BallPostSaveHandler::$all_posts
 
 		] );
 		if ( count( $scores ) > 0 ) {
@@ -66,9 +66,9 @@ class ScoreHelper {
 	public static function get_player_scores( $player_id ): array {
 
 		return get_posts( [
-			'post_type'   => WPBallObjectsRepository::SCORE_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::SCORE_POST_TYPE,
 			'posts_per_page' => - 1,
-			'meta_query'  => array(
+			'meta_query'     => array(
 
 				// meta query takes an array of arrays, watch out for this!
 				array(
@@ -77,7 +77,7 @@ class ScoreHelper {
 					//   'compare' => 'IN'
 				)
 			),
-			'post_status' => BallPostSaveHandler::$all_posts
+			'post_status'    => BallPostSaveHandler::$all_posts
 		] );
 
 
@@ -86,7 +86,7 @@ class ScoreHelper {
 	/**
 	 * @param $player_id
 	 *
-	 * @return int[]|WP_Post[]
+	 * @return  WP_Post[]
 	 */
 	public static function get_season_scores( $season_id ): array {
 
@@ -101,8 +101,8 @@ class ScoreHelper {
 
 				)
 			),
-			'posts_per_page' => - 1,
-			'post_status'    => BallPostSaveHandler::$all_posts,
+
+			'post_status' => BallPostSaveHandler::$all_posts,
 
 		] );
 
@@ -130,7 +130,10 @@ class ScoreHelper {
 			$games     = GameHelper::get_all_player_games( $player_id );
 
 			foreach ( $games as $game ) {
-				$sum += GameHelper::get_winner_score_by_id( $game->ID );
+				$game_count = GameHelper::get_game_count( $game->ID );
+				for ( $i = 0; $i < $game_count; $i ++ ) {
+					$sum += GameHelper::get_player1_score( $game->ID, $i );
+				}
 			}
 		}
 

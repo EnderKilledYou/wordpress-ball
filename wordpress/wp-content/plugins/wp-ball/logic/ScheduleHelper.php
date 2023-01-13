@@ -29,10 +29,10 @@ class ScheduleHelper {
 			}
 
 		}
-		$players_table = self::create_player_table( $players );
+
 		unset( $_REQUEST['generate_matches'] );
 		wp_update_post( [
-			'post_content' => $players_table,
+			'post_content' =>  '[season_matches]',
 			'ID'           => $id,
 		] );
 		//	$matches_table = self::create_match_table( MatchHelper::get_season_matches( $id ) );
@@ -165,24 +165,73 @@ class ScheduleHelper {
 		return $avg;
 	}
 
-	private static function create_player_table( array $players ): string {
-		$tbl_header = '<h2 class="screen-reader-text">Players list</h2>';
-		$tbl        = '<table class="wp-list-table widefat fixed striped table-view-excerpt posts">
+	private static function create_game_table( WP_POST $game ): string {
+		$tbl_header  = '<h2 class="screen-reader-text">Matches </h2>';
+		$game_count  = GameHelper::get_game_count( $game->ID );
+		$game_header = "";
+		$game_score1 = "";
+		$game_score2 = "";
+
+		for ( $i = 0; $i < $game_count; $i ++ ) {
+			$index       = $i + 1;
+			$game_score1 .= "<td>" . GameHelper::get_player1_score( $game->ID, $i ) . "</td>";
+			$game_score2 .= "<td>" . GameHelper::get_player2_score( $game->ID, $i ) . "</td>";
+			$game_header .= "<th scope='col' id='game' class=' column-title column-primary  '>
+			<span>Game $index</span>
+		</th>";
+		}
+		$tbl = '<table class="wp-list-table widefat fixed striped table-view-excerpt posts">
+	<thead>
+	<tr>
+ 
+		<th scope="col" id="game" class=" column-title column-primary  ">
+			<span></span>
+		</th>' .
+		       "
+		$game_header 
+
+		"
+
+		       .
+		       '.
+		</tr>
+	</thead>
+
+	<tbody id="the-list">
+	';
+
+		$link = get_post_permalink( $game->ID );
+		$tbl  .= '<tr><td><a href="' . $link . '">' . $game->post_title . '</a></td></tr>';
+
+		$tbl .= '
+			 </tbody>
+
+	 
+
+</table>';
+
+		return $tbl_header . $tbl;
+
+	}
+
+	private static function create_match_table( WP_POST $match ): string {
+
+		$tbl = '<table class="wp-list-table widefat fixed striped table-view-excerpt posts">
 	<thead>
 	<tr>
  
 		<th scope="col" id="title" class="manage-column column-title column-primary sortable desc">
-			<span>Player</span>
+			<span>Match</span>
 		</th>
 		</tr>
 	</thead>
 
 	<tbody id="the-list">
 	';
-		foreach ( $players as $player ) {
-			$link = get_permalink( $player->ID );
-			$tbl  .= '<tr><td><a href="' . $link . '">' . $player->post_title . '</a></td></tr>';
-		}
+
+		$link = get_post_permalink( $match->ID );
+		$tbl  .= '<tr><td><a href="' . $link . '">' . $match->post_title . '</a></td></tr>';
+
 		$tbl .= '
 			 </tbody>
 
@@ -193,4 +242,5 @@ class ScheduleHelper {
 		return $tbl;
 
 	}
+
 }
