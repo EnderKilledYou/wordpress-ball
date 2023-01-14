@@ -7,8 +7,21 @@ class ScheduleHelper {
 		if ( isset( $_REQUEST['total_games'] ) && ctype_digit( $_REQUEST['total_games'] ) ) {
 			$total_games = abs( (int) $_REQUEST['total_games'] );
 		}
-		$scores      = ScoreHelper::get_season_scores( $id );
-		$players     = PlayerHelper::map_scores_to_players( $scores );
+		$machines = MachineHelper::get_machines();
+		if ( count( $machines ) === 0 ) {
+			BallAdminNoticeHandler::AddError( "You need to add a machine first" );
+
+			return;
+		}
+		$scores = ScoreHelper::get_season_scores( $id );
+		if ( count( $scores ) === 0 ) {
+			BallAdminNoticeHandler::AddError( "You need to add a players first" );
+
+			return;
+
+		}
+		$players = PlayerHelper::map_scores_to_players( $scores );
+
 		$matches     = MatchHelper::get_season_matches( $id );
 		$match_count = count( $matches );
 		foreach ( $matches as $match ) {
@@ -32,7 +45,7 @@ class ScheduleHelper {
 
 		unset( $_REQUEST['generate_matches'] );
 		wp_update_post( [
-			'post_content' =>  '[season_matches]',
+			'post_content' => '[season_table]',
 			'ID'           => $id,
 		] );
 		//	$matches_table = self::create_match_table( MatchHelper::get_season_matches( $id ) );

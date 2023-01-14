@@ -78,8 +78,7 @@ class PlayerHelper {
 
 		$stat = wp_insert_post( [
 			'post_type'      =>  WPBallObjectsRepository::STATISTIC_POST_TYPE ,
-
-			'post_status '   => 'publish',
+			'post_name' => $post_title,
 			'post_title'     => $post_title,
 			'post_content'   => $post_content,
 			'comment_status' => 'closed',

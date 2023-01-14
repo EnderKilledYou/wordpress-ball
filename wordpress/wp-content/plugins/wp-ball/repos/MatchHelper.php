@@ -49,12 +49,13 @@ class MatchHelper {
 
 	public static function create_match( int $season_id, int $week, $txt, $date ) {
 
-
-		$stat = wp_insert_post( [
+		$post_title = "Week $week: $txt $date";
+		$stat       = wp_insert_post( [
 			'post_type'    => WPBallObjectsRepository::MATCH_POST_TYPE,
-			'post_title'   => "Week $week: $txt $date",
+			'post_title'   => $post_title,
 			'post_content' => '[match_table]',
-			'post_status ' => 'publish'
+			'post_name'    => $post_title,
+
 		] );
 		update_post_meta( $stat, self::$season_id, $season_id );
 		update_post_meta( $stat, self::$week, $week );

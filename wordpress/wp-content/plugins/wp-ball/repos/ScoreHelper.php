@@ -12,7 +12,6 @@ class ScoreHelper {
 			'post_type'  => WPBallObjectsRepository::SCORE_POST_TYPE,
 			'post_title' => $season_name . ': ' . $player->post_title,
 
-			'post_status ' => 'publish'
 		] );
 
 		update_post_meta( $score_post, self::$season_id, $season_id );

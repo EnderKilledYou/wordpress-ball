@@ -286,6 +286,7 @@ class GameHelper {
 	private static string $loser_id = 'loser_id';
 	private static string $winner_id = 'winner_id';
 	private static string $match_winner = 'match_winner';
+	private static string $match_loser = 'match_loser';
 	private static string $player_1 = 'player_1';
 	private static string $match_id = 'match_id';
 	private static string $machine_id = 'machine_id';
@@ -302,14 +303,23 @@ class GameHelper {
 	public static function update_game_complete( $game_id, bool $is_winner_player1, $game_count ): void {
 		$player1_id = self::get_player1_ID( $game_id );
 		$player2_id = self::get_player1_ID( $game_id );
-		if ( $is_winner_player1 ) {
-			update_post_meta( $game_id, self::get_winner_key( $game_count ), $player1_id );
-			update_post_meta( $game_id, self::$loser_id, $player2_id );
+		if ( $game_count === - 1 ) {
+			$winner_key = self::$match_winner;
+			$loser_key  = self::$match_loser;
+			$game_state = self::$game_state;
 		} else {
-			update_post_meta( $game_id, self::get_winner_key( $game_count ), $player2_id );
-			update_post_meta( $game_id, self::$loser_id, $player1_id );
+			$winner_key = self::get_winner_key( $game_count );
+			$loser_key  = self::get_loser_key( $game_count );
+			$game_state = self::get_game_state_key( $game_count );
 		}
-		update_post_meta( $game_id, self::$game_state, self::$game_state_complete );
+		if ( $is_winner_player1 ) {
+			update_post_meta( $game_id, $winner_key, $player1_id );
+			update_post_meta( $game_id, $loser_key, $player2_id );
+		} else {
+			update_post_meta( $game_id, $winner_key, $player2_id );
+			update_post_meta( $game_id, $loser_key, $player1_id );
+		}
+		update_post_meta( $game_id, $game_state, self::$game_state_complete );
 	}
 
 
@@ -400,9 +410,11 @@ class GameHelper {
 		$player1 = PlayerHelper::get_player( $player1_id );
 		$player2 = PlayerHelper::get_player( $player2_id );
 		$machine = get_post( $lowest_machine_id );
+		$title     = "$player1->post_title vs $player2->post_title on " . $machine->post_title;
 		$stat    = wp_insert_post( [
 			'post_type'    => WPBallObjectsRepository::GAME_POST_TYPE,
-			'post_title'   => "$player1->post_title vs $player2->post_title on " . $machine->post_title,
+			'post_name' => $title,
+			'post_title'   => $title,
 			'post_content' => '[game_table]',
 			'post_status ' => 'publish'
 		] );
@@ -508,6 +520,19 @@ class GameHelper {
 		return self::$winner_id . '_' . $game_count;
 	}
 
+	/**
+	 * @param $game_count
+	 *
+	 * @return string
+	 */
+	public static function get_game_state_key( $game_count ): string {
+		return self::$game_state . '_' . $game_count;
+	}
+
+	public static function get_match_winner( $game_id ) {
+		return get_post_meta( $game_id, self::$winner_id, true );
+	}
+
 	private static function get_player_win_count_for_game( $player_id, int $game_id ): int {
 		$total_games = self::get_game_count( $game_id );
 		$wins        = 0;
@@ -532,7 +557,6 @@ class GameHelper {
 
 		return $highest;
 	}
-
 
 
 }

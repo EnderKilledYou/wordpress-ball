@@ -54,7 +54,7 @@ class BallRegister {
 
 		add_shortcode( 'season_table', 'BallShortCodeHandler::season_table' );
 		add_shortcode( 'match_table', 'BallShortCodeHandler::match_table' );
-		add_shortcode( 'game_table', 'BallShortCodeHandler::game_table' );
+
 		add_shortcode( 'player_stats', 'BallShortCodeHandler::player_stats' );
 		add_shortcode( 'season_leader_board', 'BallShortCodeHandler::season_leader_board' );
 		add_shortcode( 'leader_board', 'BallShortCodeHandler::leader_board' );
@@ -92,6 +92,7 @@ class BallRegister {
 		);
 		add_action( "save_post_" . WPBallObjectsRepository::GAME_POST_TYPE, "BallPostSaveHandler::SaveGame" );
 		add_shortcode( 'game_table', 'BallShortCodeHandler::game_table' );
+		add_filter( 'the_title', 'BallTitleHandler::game_title',10,2 );
 		return register_post_type( WPBallObjectsRepository::GAME_POST_TYPE, $args );
 	}
 

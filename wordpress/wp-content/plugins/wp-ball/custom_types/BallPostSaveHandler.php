@@ -43,13 +43,16 @@ class BallPostSaveHandler {
 	public static function SaveSeason( $id ): void {
 
 		if ( self::CheckIfAutoDraft( $id ) === null ) {
-			wp_update_post( [ 'ID' => $id, 'post_content' => '[season_table]' ] );
+		//	wp_update_post( [ 'ID' => $id, 'post_content' => '[season_table]' ] );
 			return;
 		}
+
+		if ( ! isset( $_REQUEST['players'] )  || !is_array($_REQUEST['players']) || count($_REQUEST['players'])===0) {
+			BallAdminNoticeHandler::AddError("Add some players first");
+			return;
+		}
+
 		$post_title = get_the_title( $id );
-		if ( ! isset( $_REQUEST['players'] ) ) {
-			return;
-		}
 		foreach ( $_REQUEST['players'] as $player_id ) {
 			$score_post = ScoreHelper::get_player_score_for_season( $id, $player_id );
 			if ( $score_post ) {

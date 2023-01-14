@@ -1,5 +1,27 @@
 <?php
 
+class BallTitleHandler {
+	public static function game_title( $title, $id ) {
+
+		if ( ! $id ) {
+			return $title;
+		}
+		$post = get_post( $id );
+		if ( ! $post ) {
+			return $title;
+		}
+
+		if ( $post->post_type === strtolower(WPBallObjectsRepository::GAME_POST_TYPE )) {
+
+			$player1 = get_post( GameHelper::get_player1_ID( $id ) );
+			$player2 = get_post( GameHelper::get_player2_ID( $id ) );
+			$machine = get_post( GameHelper::get_game_machine( $id ) );
+			return "$player1->post_title vs $player2->post_title on " . $machine->post_title;
+		}
+		return $title;
+	}
+}
+
 class HtmlPrinter {
 	public static function AHref( $text, $link, $classes = [] ) {
 		$class_string = implode( " ", $classes );
@@ -9,7 +31,7 @@ class HtmlPrinter {
 }
 
 class TablePrinter {
-	public static function TableStart( $classes = [] ) {
+	public static function TableStart( $classes = [ 'wp-list-table' ] ) {
 		$class_string = implode( " ", $classes );
 
 		return "<table class=\"$class_string\">";
@@ -28,7 +50,7 @@ class TablePrinter {
 
 	public static function AddHeader(
 		$name, $col_span = 1, $classes = [
-		'manage-column',
+
 		'column-title',
 		'column-primary',
 		'sortable',
@@ -37,7 +59,7 @@ class TablePrinter {
 	) {
 		$class_str = implode( ' ', $classes );
 
-		return "<th scope=\"col\" id=\"title\" class=\"$class_str\" colspan=\"$col_span\">
+		return "<th scope=\"col\"   class=\"$class_str\" colspan=\"$col_span\">
 			<span>$name</span>
 		</th>";
 	}
@@ -56,7 +78,7 @@ class TablePrinter {
 
 	}
 
-	public static function AddColumn( $name, $col_span = 1, $classes = [ 'row-title' ] ) {
+	public static function AddColumn( $name, $col_span = 1, $classes = [] ) {
 		$class_str = implode( ' ', $classes );
 
 		return "<td   class=\"$class_str\" colspan=\"$col_span\">
@@ -82,8 +104,14 @@ class TablePrinter {
 
 class ShortCodeHelpers {
 	//todo: finish
-	public static function create_season_table( array $season, array $matches ) {
-		return 'not  ';
+	public static function create_season_table( $season_id ) {
+		$matches     = MatchHelper::get_season_matches( $season_id );
+		$matches_str = '';
+		foreach ( $matches as $match ) {
+			$matches_str .= self::create_match_table( $match );
+		}
+
+		return $matches_str;
 	}
 
 	public static function create_match_table( WP_Post $match ) {
@@ -93,27 +121,46 @@ class ShortCodeHelpers {
 		$tbl = TablePrinter::TableHeading( $date );
 		$tbl .= TablePrinter::TableStart();
 		$tbl .= TablePrinter::BodyStart();
+		$tbl .= TablePrinter::AddHeader( "Game" );
+		$tbl .= TablePrinter::AddHeader( "Player 1" );
+		$tbl .= TablePrinter::AddHeader( "Player 2" );
+		$tbl .= TablePrinter::AddHeader( "Machine" );
+		$tbl .= TablePrinter::AddHeader( "Results" );
 		foreach ( $games as $game ) {
+			$tbl .= TablePrinter::RowStart();
+//
 
-			$game_id    = $game->ID;
-			$player_1id = GameHelper::get_player1_ID( $game_id );
-			$player_2id = GameHelper::get_player2_ID( $game_id );
-			$machine_id = GameHelper::get_game_machine( $game_id );
-			$machine    = get_post( $machine_id );
-			$player1    = get_post( $player_1id );
-			$player2    = get_post( $player_2id );
+			$game_id      = $game->ID;
+			$player_1id   = GameHelper::get_player1_ID( $game_id );
+			$player_2id   = GameHelper::get_player2_ID( $game_id );
+			$machine_id   = GameHelper::get_game_machine( $game_id );
+			$machine      = get_post( $machine_id );
+			$player1      = get_post( $player_1id );
+			$player2      = get_post( $player_2id );
+			$player_1link = get_post_permalink( $player_1id );
+			$player_2link = get_post_permalink( $player_2id );
+			$game_link    = get_the_permalink( $game->ID );
+			$machine_link = get_post_permalink( $machine_id );
+			$tbl          .= TablePrinter::AddColumn( HtmlPrinter::AHref( "Game", $game_link ) );
+			$tbl          .= TablePrinter::AddColumn( HtmlPrinter::AHref( $player1->post_title, $player_1link ) );
 
-			$tbl         .= TablePrinter::AddColumn( $player1->post_title );
-			$tbl         .= TablePrinter::AddColumn( $player2->post_title );
-			$tbl         .= TablePrinter::AddColumn( $machine->post_title );
-			$player_one  = GameHelper::get_player1_ID( $game_id );
-			$player1     = get_post( $player_one );
-			$player_two  = GameHelper::get_player1_ID( $game_id );
-			$player2     = get_post( $player_two );
-			$total_games = GameHelper::get_game_count( $game_id );
-			$game_table  = self::create_game_table( $total_games, $player1->post_title, $game_id, $player2->post_title );
-			$tbl         .= TablePrinter::AddColumn( $game_table, 3 );
+			$tbl .= TablePrinter::AddColumn( HtmlPrinter::AHref( $player1->post_title, $player_1link ) );
+			$tbl .= TablePrinter::AddColumn( HtmlPrinter::AHref( $player2->post_title, $player_2link ) );
+			$tbl .= TablePrinter::AddColumn( HtmlPrinter::AHref( $machine->post_title, $machine_link ) );
+
+			$player_one      = GameHelper::get_player1_ID( $game_id );
+			$player1         = get_post( $player_one );
+			$player_two      = GameHelper::get_player2_ID( $game_id );
+			$player2         = get_post( $player_two );
+			$total_games     = GameHelper::get_game_count( $game_id );
+			$winner          = GameHelper::get_match_winner( $game_id );
+			$player_2_winner = $player2 === $winner;
+			$player_1_winner = $player1 === $winner;
+			$game_table      = self::create_game_table( $total_games, $player1->post_title, $game_id, $player2->post_title, $player_1_winner, $player_2_winner );
+			$tbl             .= TablePrinter::AddColumn( $game_table, 3 );
+			$tbl             .= TablePrinter::RowEnd();
 		}
+
 		$tbl .= TablePrinter::BodyEnd();
 		$tbl .= TablePrinter::TableEnd();
 
@@ -130,7 +177,7 @@ class ShortCodeHelpers {
 		$tbl .= TablePrinter::BodyStart();
 		$i   = 1;
 		foreach ( $players as $pdata ) {
-			[ $pId, $score ] = $pdata[0];
+			[ $pId, $score ] = $pdata;
 			$player = get_post( $pId );
 			$link   = get_post_permalink( $pId );
 			$tbl    .= TablePrinter::AddColumn( $i );
@@ -152,11 +199,12 @@ class ShortCodeHelpers {
 	 *
 	 * @return string
 	 */
-	public static function create_game_table( int $total_games, string $player_1_name, $game_id, string $player_2_name ): string {
+	public static function create_game_table( int $total_games, string $player_1_name, $game_id, string $player_2_name, bool $player1_winner, bool $player2_winner ): string {
 		$tbl = TablePrinter::TableStart();
 		$tbl .= TablePrinter::HeaderStart();
-		$tbl .= TablePrinter::AddHeader( "Player", $total_games );
-		$tbl .= TablePrinter::AddHeader( "GW" );
+		$tbl .= TablePrinter::AddHeader( "Player" );
+
+
 		for ( $i = 0; $i < $total_games; $i ++ ) {
 			$index = $i + 1;
 			$tbl   .= TablePrinter::AddHeader( "Game $index" );
@@ -170,6 +218,13 @@ class ShortCodeHelpers {
 			$score = GameHelper::get_player1_score( $game_id, $i );
 			$tbl   .= TablePrinter::AddColumn( $score );
 		}
+		if ( $player1_winner ) {
+			$tbl .= TablePrinter::AddColumn( "yes" );
+		} else {
+
+			$tbl .= TablePrinter::AddColumn( "" );
+
+		}
 		$tbl .= TablePrinter::RowEnd();
 
 		$tbl .= TablePrinter::RowStart();
@@ -177,6 +232,14 @@ class ShortCodeHelpers {
 		for ( $i = 0; $i < $total_games; $i ++ ) {
 			$score = GameHelper::get_player2_score( $game_id, $i );
 			$tbl   .= TablePrinter::AddColumn( $score );
+
+		}
+		if ( $player2_winner ) {
+			$tbl .= TablePrinter::AddColumn( "yes" );
+		} else {
+
+			$tbl .= TablePrinter::AddColumn( "" );
+
 		}
 		$tbl .= TablePrinter::RowEnd();
 		$tbl .= TablePrinter::TableEnd();
@@ -187,8 +250,8 @@ class ShortCodeHelpers {
 	public static function create_basic_stat_table( $player_id, $highest_score, $highest_single_wl_game_id, int $games_won, int $games_lost ) {
 		$player_name   = get_the_title( $player_id );
 		$link          = get_post_permalink( $player_id );
-		$high_w_l      = get_the_title( $player_id );
-		$high_w_l_link = get_post_permalink( $player_id );
+		$high_w_l      = get_the_title( $highest_single_wl_game_id );
+		$high_w_l_link = get_post_permalink( $highest_single_wl_game_id );
 		$tbl           = TablePrinter::TableStart();
 		$tbl           .= TablePrinter::HeaderStart();
 		$tbl           .= TablePrinter::AddHeader( "Player" );
@@ -252,9 +315,10 @@ class BallShortCodeHandler {
 	}
 
 	public static function season_leader_board( $atts ): string {
+
 		$atts = shortcode_atts(
 			array(
-				'season_id' => '0',
+				'season_id' => 0,
 			),
 			$atts,
 			'season_leader_board'
@@ -270,6 +334,7 @@ class BallShortCodeHandler {
 			}
 		}
 
+
 		$players  = [];
 		$scores   = ScoreHelper::get_season_scores( $season_id );
 		$splayers = PlayerHelper::map_scores_to_players( $scores );
@@ -284,8 +349,8 @@ class BallShortCodeHandler {
 		foreach ( array_keys( $players ) as $player_id ) {
 			$ptmp[] = [ $player_id, $players[ $player_id ] ];
 		}
-		uasort( $ptmp, static function ( $a, $b ) use ( $ptmp ) {
-			return $ptmp[ $a ][1] - $ptmp[ $b ][1];
+		uasort( $ptmp, static function ( $a, $b ) {
+			return $a [1] - $b [1];
 		} );
 
 
@@ -298,7 +363,7 @@ class BallShortCodeHandler {
 	public static function player_season_stats( $atts ): string {
 		$atts = shortcode_atts(
 			array(
-				'game_id' => '0',
+				'game_id' => 0,
 			),
 			$atts,
 			'game_table'
@@ -322,8 +387,13 @@ class BallShortCodeHandler {
 
 		$player_1_name = $player1->post_title;
 		$player_2_name = $player2->post_title;
+		$winner        = GameHelper::get_match_winner( $game_id );
 
-		return ShortCodeHelpers::create_game_table( $total_games, $player_1_name, $game_id, $player_2_name );
+		$player_2_winner = $player2 === $winner;
+
+		$player_1_winner = $player1 === $winner;
+
+		return ShortCodeHelpers::create_game_table( $total_games, $player_1_name, $game_id, $player_2_name, $player_1_winner, $player_2_winner );
 
 	}
 
@@ -338,7 +408,7 @@ class BallShortCodeHandler {
 		);
 
 
-		if ( $atts['game_id'] !== 0 ) {
+		if ( $atts['player_id'] !== 0 ) {
 			$player_id = $atts['player_id'];
 		} else {
 			$player_id = get_the_ID();
@@ -359,7 +429,7 @@ class BallShortCodeHandler {
 	public static function game_table( $atts ): string {
 		$atts = shortcode_atts(
 			array(
-				'game_id' => '0',
+				'game_id' => 0,
 			),
 			$atts,
 			'game_table'
@@ -376,15 +446,18 @@ class BallShortCodeHandler {
 		}
 		$player_one  = GameHelper::get_player1_ID( $game_id );
 		$player1     = get_post( $player_one );
-		$player_two  = GameHelper::get_player1_ID( $game_id );
+		$player_two  = GameHelper::get_player2_ID( $game_id );
 		$player2     = get_post( $player_two );
 		$total_games = GameHelper::get_game_count( $game_id );
 
 
-		$player_1_name = $player1->post_title;
-		$player_2_name = $player2->post_title;
+		$player_1_name   = $player1->post_title;
+		$player_2_name   = $player2->post_title;
+		$winner          = GameHelper::get_match_winner( $game_id );
+		$player_2_winner = $player2 === $winner;
+		$player_1_winner = $player1 === $winner;
 
-		return ShortCodeHelpers::create_game_table( $total_games, $player_1_name, $game_id, $player_2_name );
+		return  "$total_games . ". ShortCodeHelpers::create_game_table( $total_games, $player_1_name, $game_id, $player_2_name, $player_1_winner, $player_2_winner );
 
 	}
 
@@ -397,9 +470,9 @@ class BallShortCodeHandler {
 			'match_table'
 		);
 
-
-		if ( $atts['match_id'] !== 0 ) {
-			$match_id = $atts['match_id'];
+		$id = (int) $atts['match_id'];
+		if ( $id !== 0 ) {
+			$match_id = $id;
 		} else {
 			$match_id = get_the_ID();
 			if ( $match_id === 0 ) {
@@ -415,26 +488,26 @@ class BallShortCodeHandler {
 	public static function season_table( $atts ): string {
 		$atts = shortcode_atts(
 			array(
-				'season_id' => '0',
+				'season_id' => 0,
 			),
 			$atts,
 			'season_table'
 		);
 
 
-		if ( $atts['season_id'] !== 0 ) {
-			$season_id = $atts['season_id'];
+		$id = (int) $atts['season_id'];
+		if ( $id !== 0 ) {
+			$season_id = $id;
 		} else {
 			$season_id = get_the_ID();
-			if ( $season_id === 0 ) {
+			if ( $season_id === (int) 0 ) {
 				return "No Such Season";
 			}
 		}
-		$season  = get_post( $season_id );
-		$matches = MatchHelper::get_season_matches( $season_id );
 
 
-		return ShortCodeHelpers::create_season_table( $season, $matches );
+		return ShortCodeHelpers::create_season_table( $season_id );
+
 
 	}
 
