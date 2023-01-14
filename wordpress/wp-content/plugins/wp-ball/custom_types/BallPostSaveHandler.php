@@ -24,31 +24,45 @@ class BallPostSaveHandler {
 		if ( self::CheckIfAutoDraft( $id ) === null ) {
 			return;
 		}
-		if ( isset( $_REQUEST['player1_score'], $_REQUEST['game_count'] ) && ctype_digit( $_REQUEST['player1_score'] ) && ctype_digit( $_REQUEST['game_count'] ) ) {
-			GameHelper::update_player1_score( $id, (int) $_REQUEST['player1_score'], (int) $_REQUEST['game_count'] );
+
+		if ( ! isset( $_REQUEST['game_index'] ) || ! is_numeric( $_REQUEST['game_index'] ) ) {
+			return;
 		}
-		if ( isset( $_REQUEST['player2_score'], $_REQUEST['game_count'] ) && ctype_digit( $_REQUEST['player1_score'] ) && ctype_digit( $_REQUEST['game_count'] ) ) {
-			GameHelper::update_player2_score( $id, (int) $_REQUEST['player2_score'], (int) $_REQUEST['game_count'] );
-		}
-		if ( isset( $_REQUEST['game_complete'], $_REQUEST['winner_id'], $_REQUEST['game_count'] ) && ctype_digit( $_REQUEST['game_complete'] ) && ctype_digit( $_REQUEST['winner_id'] ) && ctype_digit( $_REQUEST['game_count'] ) ) {
+		$game_index = (int) $_REQUEST['game_index'];
+
+		if ( $game_index >= 0 ) {
+			if ( isset( $_REQUEST['player1_score'], ) && is_numeric( $_REQUEST['player1_score'] ) ) {
+				$player_1_score = (int) $_REQUEST['player1_score'];
+
+				GameHelper::update_player1_score( $id, $player_1_score, $game_index );
+
+			}
+			if ( isset( $_REQUEST['player2_score'] ) && is_numeric( $_REQUEST['player1_score'] ) ) {
+				$player_2_score = (int) $_REQUEST['player2_score'];
+				GameHelper::update_player2_score( $id, $player_2_score, $game_index );
+
+			}
+		}else if ( isset( $_REQUEST['game_complete'], $_REQUEST['winner_id'] ) && is_numeric( $_REQUEST['game_complete'] ) && is_numeric( $_REQUEST['winner_id'] ) ) {
+
 			$player1          = GameHelper::get_player1_ID( $id );
 			$winner_id        = (int) $_REQUEST['winner_id'];
 			$bwinner_player_1 = $player1 === $winner_id;
-			GameHelper::update_game_complete( $id, $bwinner_player_1, $_REQUEST['game_count'] );
+
+			GameHelper::update_game_complete( $id, $bwinner_player_1, $game_index );
 
 		}
-
 	}
 
 	public static function SaveSeason( $id ): void {
 
 		if ( self::CheckIfAutoDraft( $id ) === null ) {
-		//	wp_update_post( [ 'ID' => $id, 'post_content' => '[season_table]' ] );
+			//	wp_update_post( [ 'ID' => $id, 'post_content' => '[season_table]' ] );
 			return;
 		}
 
-		if ( ! isset( $_REQUEST['players'] )  || !is_array($_REQUEST['players']) || count($_REQUEST['players'])===0) {
-			BallAdminNoticeHandler::AddError("Add some players first");
+		if ( ! isset( $_REQUEST['players'] ) || ! is_array( $_REQUEST['players'] ) || count( $_REQUEST['players'] ) === 0 ) {
+			BallAdminNoticeHandler::AddError( "Add some players first" );
+
 			return;
 		}
 
@@ -80,7 +94,7 @@ class BallPostSaveHandler {
 		$first_date  = strtotime( $_REQUEST['start_date'] );
 		$timestamp   = $first_date;
 		$total_weeks = 7;
-		if ( isset( $_REQUEST['total_weeks'] ) && ctype_digit( $_REQUEST['total_weeks'] ) ) {
+		if ( isset( $_REQUEST['total_weeks'] ) && is_numeric( $_REQUEST['total_weeks'] ) ) {
 			$total_weeks = abs( (int) $_REQUEST['total_weeks'] );
 		}
 		for ( $i = 0; $i < $total_weeks; $i ++ ) {

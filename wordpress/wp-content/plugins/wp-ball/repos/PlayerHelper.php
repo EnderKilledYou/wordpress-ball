@@ -11,9 +11,9 @@ class PlayerHelper {
 	 */
 	public static function get_seasons(): array {
 		return get_posts( [
-			'post_type' => WPBallObjectsRepository::SEASON_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::SEASON_POST_TYPE,
 			'posts_per_page' => - 1,
-			'post_status' => BallPostSaveHandler::$all_posts
+			'post_status'    => BallPostSaveHandler::$all_posts
 		] );
 
 	}
@@ -23,9 +23,9 @@ class PlayerHelper {
 	 */
 	public static function get_players(): array {
 		return get_posts( [
-			'post_type' => WPBallObjectsRepository::PLAYER_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::PLAYER_POST_TYPE,
 			'posts_per_page' => - 1,
-			'post_status' => BallPostSaveHandler::$all_posts
+			'post_status'    => BallPostSaveHandler::$all_posts
 		] );
 
 	}
@@ -77,8 +77,8 @@ class PlayerHelper {
 
 
 		$stat = wp_insert_post( [
-			'post_type'      =>  WPBallObjectsRepository::STATISTIC_POST_TYPE ,
-			'post_name' => $post_title,
+			'post_type'      => WPBallObjectsRepository::STATISTIC_POST_TYPE,
+			'post_name'      => $post_title,
 			'post_title'     => $post_title,
 			'post_content'   => $post_content,
 			'comment_status' => 'closed',
@@ -86,8 +86,8 @@ class PlayerHelper {
 
 
 		] );
-		wp_publish_post($stat);
-		update_post_meta( $stat, self::$player_id,$player_id );
+		wp_publish_post( $stat );
+		update_post_meta( $stat, self::$player_id, $player_id );
 		self::update_statistics_total_wins( $stat, 0 );
 		self::update_statistics_total_losses( $stat, 0 );
 		self::update_statistics_total_matches( $stat, 0 );
@@ -98,9 +98,9 @@ class PlayerHelper {
 
 	public static function get_player_statistic( $playerID ): ?WP_Post {
 		$post_list = get_posts( [
-			'post_type'   => WPBallObjectsRepository::STATISTIC_POST_TYPE,
+			'post_type'      => WPBallObjectsRepository::STATISTIC_POST_TYPE,
 			'posts_per_page' => - 1,
-			'meta_query'  => array(
+			'meta_query'     => array(
 				// meta query takes an array of arrays, watch out for this!
 				array(
 					'key'   => self::$player_id,
@@ -108,7 +108,7 @@ class PlayerHelper {
 					//   'compare' => 'IN'
 				)
 			),
-			'post_status' => BallPostSaveHandler::$all_posts
+			'post_status'    => BallPostSaveHandler::$all_posts
 		] );
 		if ( count( $post_list ) === 0 ) {
 			return null;
@@ -140,7 +140,7 @@ class PlayerHelper {
 		foreach ( $scores as $score ) {
 			$player = get_post( ScoreHelper::get_player_id_from_score( $score->ID ) );
 			if ( ! $player ) {
-				BallAdminNoticeHandler::AddError( "No such player for score $score->ID, was it deleted? " );
+				BallAdminNoticeHandler::AddError( "No such player for score $score->ID, was it deleted? If so Delete score {$score->ID}" );
 
 				return [];
 			}

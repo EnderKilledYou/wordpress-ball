@@ -4,7 +4,7 @@ class ScheduleHelper {
 
 	public static function RebuildSchedule( $id ) {
 		$total_games = 4;
-		if ( isset( $_REQUEST['total_games'] ) && ctype_digit( $_REQUEST['total_games'] ) ) {
+		if ( isset( $_REQUEST['total_games'] ) && is_numeric( $_REQUEST['total_games'] ) ) {
 			$total_games = abs( (int) $_REQUEST['total_games'] );
 		}
 		$machines = MachineHelper::get_machines();

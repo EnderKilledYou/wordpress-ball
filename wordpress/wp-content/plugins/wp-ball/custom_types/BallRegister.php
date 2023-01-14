@@ -14,7 +14,19 @@ class BallRegister {
 		self::RegisterSEASON();
 		self::RegisterMachine();
 		self::RegisterAdminNotice();
+		//generic multi ones
+		add_filter( 'user_has_cap', 'BallRegister::prevent_post_delete', 10, 3 );
+		add_action( "edit_form_after_title", "BallPostFormHandler::Edit_form_after_titles" );
 
+	}
+
+	public static function prevent_post_delete( $allcaps, $caps, $args ) {
+		if ( isset( $args[0], $args[2] ) && $args[0] === 'delete_post' ) {
+
+			$allcaps[ $caps[0] ] = false;
+		}
+
+		return $allcaps;
 	}
 
 	public static function RegisterAdminNotice(): void {
@@ -80,6 +92,7 @@ class BallRegister {
 
 		return register_post_type( WPBallObjectsRepository::SCORE_POST_TYPE, $args );
 	}
+
 	/**
 	 * @return WP_Error|WP_Post_Type
 	 */
@@ -90,9 +103,11 @@ class BallRegister {
 			'name'          => __( 'Games' ),
 			'singular_name' => __( 'Game' )
 		);
-		add_action( "save_post_" . WPBallObjectsRepository::GAME_POST_TYPE, "BallPostSaveHandler::SaveGame" );
+		$game_type = strtolower( WPBallObjectsRepository::GAME_POST_TYPE );
+		add_action( "save_post_" . $game_type, "BallPostSaveHandler::SaveGame" );
 		add_shortcode( 'game_table', 'BallShortCodeHandler::game_table' );
-		add_filter( 'the_title', 'BallTitleHandler::game_title',10,2 );
+		add_filter( 'the_title', 'BallTitleHandler::game_title', 10, 2 );
+
 		return register_post_type( WPBallObjectsRepository::GAME_POST_TYPE, $args );
 	}
 
@@ -107,7 +122,7 @@ class BallRegister {
 			'singular_name' => __( 'Match' )
 		);
 		add_action( "save_post_" . WPBallObjectsRepository::MATCH_POST_TYPE, "BallPostSaveHandler::SaveMatch" );
-		add_filter('the_excerpt', 'BallExcerptHandler::MatchHandler');
+		add_filter( 'the_excerpt', 'BallExcerptHandler::MatchHandler' );
 
 
 		return register_post_type( WPBallObjectsRepository::MATCH_POST_TYPE, $args );
@@ -125,8 +140,9 @@ class BallRegister {
 		);
 		$SEASON_POST_TYPE    = strtolower( WPBallObjectsRepository::SEASON_POST_TYPE );
 		add_action( "save_post_{$SEASON_POST_TYPE}", "BallPostSaveHandler::SaveSeason" );
-		add_action( "edit_form_after_title", "BallPostFormHandler::Edit_form_after_titles" );
+
 		add_action( "save_post_{$SEASON_POST_TYPE}", "BallPostSaveHandler::RebuildSchedule" );
+
 		return register_post_type( WPBallObjectsRepository::SEASON_POST_TYPE, $args );
 
 	}
