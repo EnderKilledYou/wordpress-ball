@@ -299,6 +299,23 @@ class GameHelper {
 	private static string $game_state_complete = 'complete';
 	private static string $game_state_pending = 'pending';
 
+	public static function is_game_complete( $game_id, $game_count ): bool {
+
+
+		return self::get_game_complete( $game_id, $game_count ) === self::$game_state_complete;
+	}
+
+	public static function get_game_complete( $game_id, $game_count ) {
+		if ( $game_count === - 1 ) {
+
+			$game_state = self::$game_state;
+		} else {
+
+			$game_state = self::get_game_state_key( $game_count );
+		}
+
+		return get_post_meta( $game_id, $game_state, true );
+	}
 
 	public static function update_game_complete( $game_id, bool $is_winner_player1, $game_count ): void {
 		$player1_id = self::get_player1_ID( $game_id );
@@ -311,6 +328,7 @@ class GameHelper {
 			$winner_key = self::get_winner_key( $game_count );
 			$loser_key  = self::get_loser_key( $game_count );
 			$game_state = self::get_game_state_key( $game_count );
+
 		}
 		if ( $is_winner_player1 ) {
 			update_post_meta( $game_id, $winner_key, $player1_id );
@@ -364,6 +382,7 @@ class GameHelper {
 	 * @return mixed
 	 */
 	public static function get_winner_id( $game_id, $game_count ) {
+
 		return get_post_meta( $game_id, self::get_winner_key( $game_count ), true );
 	}
 
@@ -427,7 +446,7 @@ class GameHelper {
 		update_post_meta( $stat, self::$player_2, $player2_id );
 		for ( $i = 0; $i < $total_games; $i ++ ) {
 
-
+			update_post_meta( $stat, self::get_game_state_key( $i ), self::$game_state_pending );
 			self::update_player1_score( $stat, 0, $i );
 			self::update_player2_score( $stat, 0, $i );
 		}
@@ -450,7 +469,11 @@ class GameHelper {
 		foreach ( $season_ids as $season_id ) {
 			$games = self::get_player_games_by_season( $player_id, $season_id );
 			foreach ( $games as $game ) {
-				$sum .= self::get_player_score_from_game( $season_id, $player_id );
+				$game_count = self::get_game_count( $game->ID );
+				for ( $i = 0; $i < $game_count; $i ++ ) {
+					$sum .= self::get_player_score_from_game( $season_id, $player_id, $game_count );
+				}
+
 			}
 		}
 
@@ -486,12 +509,16 @@ class GameHelper {
 		return $best;
 	}
 
-	public static function get_player_win_loss_of_game( $player_id, $game_id ) {
+	public static function get_player_win_loss_of_game( $player_id, $game_id ): array {
 		$win_count  = 0;
 		$loss_count = 0;
 		$game_count = self::get_game_count( $game_id );
+
 		for ( $i = 0; $i < $game_count; $i ++ ) {
-			if ( self::get_winner_id( $game_id, $game_count ) === $player_id ) {
+
+
+
+			if ( self::get_winner_id( $game_id, $i ) === $player_id ) {
 
 				$win_count ++;
 			} else {
@@ -549,7 +576,7 @@ class GameHelper {
 	}
 
 	public static function get_match_winner( $game_id ) {
-		return get_post_meta( $game_id, self::$winner_id, true );
+		return get_post_meta( $game_id, self::$match_winner, true );
 	}
 
 	/**
@@ -568,6 +595,10 @@ class GameHelper {
 	 */
 	public static function get_player2_key( $game_count ): string {
 		return self::$player_2_score . '_' . $game_count;
+	}
+
+	public static function get_match_id( int $game_id ) {
+		return get_post_meta( $game_id, self::$match_id, true );
 	}
 
 	private static function get_player_win_count_for_game( $player_id, int $game_id ): int {

@@ -10,14 +10,54 @@ class BallRegister {
 		self::RegisterPLAYER();
 		self::RegisterMATCH();
 		self::RegisterSCORE();
-		self::RegisterStats();
+
 		self::RegisterSEASON();
 		self::RegisterMachine();
 		self::RegisterAdminNotice();
 		//generic multi ones
 		add_filter( 'user_has_cap', 'BallRegister::prevent_post_delete', 10, 3 );
+		add_filter( 'user_has_cap', 'BallRegister::allow_co_author', 10, 3 );
 		add_action( "edit_form_after_title", "BallPostFormHandler::Edit_form_after_titles" );
 
+	}
+
+	public static function allow_co_author( $allcaps, $caps, $args ) {
+		if ( 'edit_post' !== $args[0] ) {
+			return $allcaps;
+		}
+
+		if ( isset( $allcaps['edit_others_posts'] ) ) {
+
+
+			return $allcaps;
+		}
+
+		$user_id = $args[1];
+		$post_id = $args[2];
+		$post    = get_post( $post_id );
+		if ( $args[1] === $post->post_author ) {
+			return $allcaps;
+		}
+		if ( $post->post_type !== strtolower( WPBallObjectsRepository::GAME_POST_TYPE ) ) {
+			return $allcaps;
+		}
+		$player1_id = GameHelper::get_player1_ID( $post_id );
+		$player2_id = GameHelper::get_player2_ID( $post_id );
+
+
+		$player1_user_id = PlayerHelper::get_player_user_id( $player1_id );
+		$player2_user_id = PlayerHelper::get_player_user_id( $player2_id );
+		$match_id        = GameHelper::get_match_id( $post_id );
+		$match_date_week = MatchHelper::get_week( $match_id );
+		$date_week       = date( "W" );
+		if ( $user_id === $player2_user_id || $user_id === $player1_user_id ) {
+			if ( (int) $match_date_week === (int) $date_week ) {
+
+				$allcaps[ $caps[0] ] = true;
+			}
+		}
+
+		return $allcaps;
 	}
 
 	public static function prevent_post_delete( $allcaps, $caps, $args ) {
@@ -103,11 +143,20 @@ class BallRegister {
 			'name'          => __( 'Games' ),
 			'singular_name' => __( 'Game' )
 		);
-		$game_type = strtolower( WPBallObjectsRepository::GAME_POST_TYPE );
+		$game_type           = strtolower( WPBallObjectsRepository::GAME_POST_TYPE );
 		add_action( "save_post_" . $game_type, "BallPostSaveHandler::SaveGame" );
 		add_shortcode( 'game_table', 'BallShortCodeHandler::game_table' );
 		add_filter( 'the_title', 'BallTitleHandler::game_title', 10, 2 );
-
+//		$args['capabilities'] = array(
+//			'edit_post'          => 'edit_post',
+//			'read_post'          => 'read_post',
+//			'delete_post'        => 'delete_post',
+//			'edit_posts'         => 'edit_posts',
+//			'edit_others_posts'  => 'edit_others_posts',
+//			'publish_posts'      => 'publish_games',
+//			'read_private_posts' => 'read_private_books',
+//			'create_posts'       => 'create_posts',
+//		);
 		return register_post_type( WPBallObjectsRepository::GAME_POST_TYPE, $args );
 	}
 

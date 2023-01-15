@@ -1,5 +1,54 @@
 # Wordpress Ball
 
+## Set up
+
+1. First add some users (not players)
+2. Add some players, assign users to player
+3. Add a season, pick some players hit publish
+4. enjoy auto generated season
+5. To add a custom match/game create a season but don't auto generate
+   1. Create a match and set season_id, week and date in the custom fields to the id of the season
+   2. Create some games and set match_id, game_count, player1_id, player2_id, and others from the drop downs in custom fields
+      1. It's probably best to copy an existing game and just change the match_id and player_ids! That way you know you have all the scores.
+
+## Scoring a Game
+   1. There will be a drop down with the round number (game index). Set that and hit the button.
+   2. You can update the player scores as much as you want until the game is over. Then select the winner and game complete and hit publish
+   3. Repeat until no games left. Then set the OVERALL winner by selecting "Game Result" as the round 
+# Short Codes
+### [leader_board]
+No parameters displays the over all leader board
+
+
+### [season_leader_board] 
+optional season_id when not on a season post displays the season leader board
+
+### [player_season_stats]
+required season_id, 
+optional player_id when not on a player post displays the player's season stats
+
+### [player_stats]
+optional player_id when not on a player post displays the player stats
+
+### [game_table]
+optional game_id when not on a game post displays score for that game
+
+### [match_table]
+optional match_id when not on a match post displays all the games for that match
+
+### [season_table]
+optional season_id when not on a season post displays the matches for the season
+
+### [playerwins]
+optional player_id when not on a player post displays the total wins of the player
+
+### [playerscore]
+optional player_id when not on a player post displays the sum of all the players points
+
+### [playerlosses]
+optional player_id when not on a player post displays the total losses of the player
+
+For devs:
 Quick Setup:
 
 Clone repo to the root of your PhpStorm Project.

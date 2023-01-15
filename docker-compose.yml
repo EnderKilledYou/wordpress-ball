@@ -18,7 +18,7 @@ services:
       - db
     build: ./
     ports:
-      - 8080:80
+      - 8090:80
     restart: on-failure
     volumes:
       - ./wordpress:/var/www/html

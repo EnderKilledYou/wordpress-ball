@@ -59,7 +59,7 @@ class MatchHelper {
 		] );
 		update_post_meta( $stat, self::$season_id, $season_id );
 		update_post_meta( $stat, self::$week, $week );
-		update_post_meta( $stat, self::$week, $date );
+		update_post_meta( $stat, self::$date, $date );
 		wp_publish_post( $stat );
 //		update_post_meta( $stat, self::$player_2, $player2->ID );
 //		update_post_meta( $stat, self::$player_1_score, "0" );

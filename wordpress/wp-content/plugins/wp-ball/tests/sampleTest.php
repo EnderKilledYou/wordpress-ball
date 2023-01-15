@@ -62,15 +62,21 @@ final class StackTest extends TestCase {
 //	}
 
 	public function test_short_codes(): void {
-		$season_id = create_first_default_season();
-		$games = GameHelper::get_games_by_season($season_id);
-		$id = $games[0]->ID;
-		$game_index = 0;
-		GameHelper::update_player1_score( $id, 1000, $game_index );
-		GameHelper::update_player2_score( $id, 10000, $game_index );
+		$season_id =16;//  create_first_default_season();
 
-		GameHelper::update_game_complete( $id,true,$game_index );
-
+		$games     = GameHelper::get_games_by_season( $season_id );
+		foreach ( $games as $game ) {
+			$id         = $game->ID;
+			$game_count = GameHelper::get_game_count( $id );
+			for ( $game_index = 0; $game_index < $game_count; $game_index ++ ) {
+				GameHelper::update_player1_score( $id, 10000, $game_index );
+				GameHelper::update_player2_score( $id, 1000, $game_index );
+				GameHelper::update_game_complete( $id, true, $game_index );
+			}
+			GameHelper::update_player1_score( $id, 10000, - 1 );
+			GameHelper::update_player2_score( $id, 1000, - 1 );
+			GameHelper::update_game_complete( $id, true, - 1 );
+		}
 
 
 		///$tbl       = BallShortCodeHandler::season_table( [ 'season_id' => $season_id ] );
@@ -136,7 +142,7 @@ function create_first_default_season() {
 	$machine_names = [ 'mach1', 'mach2', 'mach3' ];
 
 	$players = [];
-
+	$machines=[];
 	foreach ( $machine_names as $machine_name ) {
 		$player_already_created = get_posts( [
 			'post_type'   => WPBallObjectsRepository::MACHINE_POST_TYPE,
@@ -145,7 +151,7 @@ function create_first_default_season() {
 		] );
 
 		if ( count( $player_already_created ) === 0 ) {
-			$players[] = $tmp_id = wp_insert_post( [
+			$machines[] = $tmp_id = wp_insert_post( [
 				'post_type'    => WPBallObjectsRepository::MACHINE_POST_TYPE,
 				'post_title'   => $machine_name,
 				'post_name'    => $machine_name,

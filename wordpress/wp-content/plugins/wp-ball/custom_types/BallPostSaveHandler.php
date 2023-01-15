@@ -42,7 +42,9 @@ class BallPostSaveHandler {
 				GameHelper::update_player2_score( $id, $player_2_score, $game_index );
 
 			}
-		}else if ( isset( $_REQUEST['game_complete'], $_REQUEST['winner_id'] ) && is_numeric( $_REQUEST['game_complete'] ) && is_numeric( $_REQUEST['winner_id'] ) ) {
+		}
+
+		if ( isset( $_REQUEST['game_complete'], $_REQUEST['winner_id'] ) && is_numeric( $_REQUEST['winner_id'] ) ) {
 
 			$player1          = GameHelper::get_player1_ID( $id );
 			$winner_id        = (int) $_REQUEST['winner_id'];
@@ -111,24 +113,11 @@ class BallPostSaveHandler {
 
 	public static function SavePlayer( $id ): void {
 
-		$player = self::CheckIfAutoDraft( $id );
-		if ( $player === null ) {
+
+		if ( ! isset( $_REQUEST['player_to_assign'] ) || ! is_numeric( $_REQUEST['player_to_assign'] ) ) {
 			return;
 		}
-
-		if ( ! $player ) {
-			BallAdminNoticeHandler::AddError( "No such player $id" );
-
-			return;
-
-		}
-		$stat = PlayerHelper::get_player_statistic( $id );
-		if ( ! $stat ) {
-			$stats      = PlayerHelper::create_player_stat( $player->ID, $player->post_title, $player->post_content );
-			$stats_post = get_post_permalink( $stats );
-			BallAdminNoticeHandler::AddNotice( "Player Statistics is:  {$stats} $stats_post" );
-		}
-
+		PlayerHelper::set_player_user_id( $id, (int) $_REQUEST['player_to_assign'] );
 
 	}
 
