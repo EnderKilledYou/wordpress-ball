@@ -63,6 +63,16 @@ final class StackTest extends TestCase {
 
 	public function test_short_codes(): void {
 		$season_id = create_first_default_season();
+		$games = GameHelper::get_games_by_season($season_id);
+		$id = $games[0]->ID;
+		$game_index = 0;
+		GameHelper::update_player1_score( $id, 1000, $game_index );
+		GameHelper::update_player2_score( $id, 10000, $game_index );
+
+		GameHelper::update_game_complete( $id,true,$game_index );
+
+
+
 		///$tbl       = BallShortCodeHandler::season_table( [ 'season_id' => $season_id ] );
 	}
 
