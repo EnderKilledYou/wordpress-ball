@@ -305,7 +305,7 @@ class GameHelper {
 		return self::get_game_complete( $game_id, $game_count ) === self::$game_state_complete;
 	}
 
-	public static function get_game_complete( $game_id, $game_count ) {
+	public static function get_game_complete( $game_id, $game_count )  {
 		if ( $game_count === - 1 ) {
 
 			$game_state = self::$game_state;
@@ -314,7 +314,7 @@ class GameHelper {
 			$game_state = self::get_game_state_key( $game_count );
 		}
 
-		return (int) get_post_meta( $game_id, $game_state, true );
+		return  get_post_meta( $game_id, $game_state, true );
 	}
 
 	public static function update_game_complete( $game_id, bool $is_winner_player1, $game_count ): void {
