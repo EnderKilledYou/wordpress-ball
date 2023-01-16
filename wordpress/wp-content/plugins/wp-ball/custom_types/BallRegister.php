@@ -15,7 +15,7 @@ class BallRegister {
 		self::RegisterMachine();
 		self::RegisterAdminNotice();
 		//generic multi ones
-		add_filter( 'user_has_cap', 'BallRegister::prevent_post_delete', 10, 3 );
+	//	add_filter( 'user_has_cap', 'BallRegister::prevent_post_delete', 10, 3 );
 		add_filter( 'user_has_cap', 'BallRegister::allow_co_author', 10, 3 );
 		add_action( "edit_form_after_title", "BallPostFormHandler::Edit_form_after_titles" );
 
