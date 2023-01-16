@@ -45,3 +45,29 @@
     text-align: left;
     width: 100%;
 }
+
+.leader_table {
+    background-color: rgba(255, 255, 255, 1) !important;
+    color: rgba(40, 40, 40, 1) !important;
+    border-color: rgba(221, 221, 221, 1) !important;
+    background: #fff;
+
+    box-shadow: none;
+    color: rgba(0,0,0,.87);
+    margin: 1em 0;
+    text-align: left;
+    width: 100%;
+}
+.leader_table > thead > tr > th {
+    padding: 10px 14px;
+    background-color: rgb(55, 156, 229);
+    border-color: rgb(0, 133, 229);
+    text-align: center;
+}
+.game_table >tbody>tr.bold {
+    font-weight: bold;
+}
+
+.leader_table >tbody>tr.machine {
+    font-weight: bold;
+}

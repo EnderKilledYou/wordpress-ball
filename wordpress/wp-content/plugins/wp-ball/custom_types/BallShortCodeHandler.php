@@ -119,6 +119,7 @@ class ShortCodeHelpers {
 
 		return $matches_str;
 	}
+
 	/**
 	 * @param $game_id
 	 *
@@ -143,6 +144,7 @@ class ShortCodeHelpers {
 
 		return ShortCodeHelpers::create_game_table( $total_games, $player_1_name, $game_id, $player_2_name, $machine_name, $get_player1_wins[0], $get_player2_wins[0], $player_1_winner, $player_2_winner );
 	}
+
 	public static function create_match_table( WP_Post $match ) {
 		$date  = MatchHelper::get_date( $match->ID );
 		$games = GameHelper::get_match_games( $match->ID );
@@ -165,21 +167,37 @@ class ShortCodeHelpers {
 	}
 
 	public static function leader_board_table( array $players ): string {
-		$tbl = TablePrinter::TableStart();
+		$tbl = TablePrinter::TableStart( [ 'leader_table' ] );
 		$tbl .= TablePrinter::HeaderStart();
 		$tbl .= TablePrinter::AddHeader( "Position" );
 		$tbl .= TablePrinter::AddHeader( "Player" );
-		$tbl .= TablePrinter::AddHeader( "Score" );
+		$tbl .= TablePrinter::AddHeader( "Wins" );
+		$tbl .= TablePrinter::AddHeader( "Game wins" );
+		$tbl .= TablePrinter::AddHeader( "Last Week" );
 		$tbl .= TablePrinter::HeaderEnd();
 		$tbl .= TablePrinter::BodyStart();
 		$i   = 1;
 		foreach ( $players as $pdata ) {
-			[ $pId, $score ] = $pdata;
-			$player = get_post( $pId );
-			$link   = get_post_permalink( $pId );
-			$tbl    .= TablePrinter::AddColumn( $i );
-			$tbl    .= TablePrinter::AddColumn( HtmlPrinter::AHref( $player->post_title, $link ) );
-			$tbl    .= TablePrinter::AddColumn( $score );
+			$tbl .= TablePrinter::RowStart();
+			[ $pId, $score,$total_gw ] = $pdata;
+			$player    = get_post( $pId );
+			$link      = get_post_permalink( $pId );
+			$last_game = GameHelper::get_last_game( $pId );
+
+
+			if ( $last_game !== 0 ) {
+				$last_week = GameHelper::get_player_win_loss_of_game( $pId, $last_game );
+			} else {
+				$last_week = [ 0, 0 ];
+
+			}
+
+			$tbl .= TablePrinter::AddColumn( $i ++ );
+			$tbl .= TablePrinter::AddColumn( HtmlPrinter::AHref( $player->post_title, $link ) );
+			$tbl .= TablePrinter::AddColumn( $score );
+			$tbl .= TablePrinter::AddColumn( $total_gw );
+			$tbl .= TablePrinter::AddColumn( "{$last_week[0]} - {$last_week[1]}" );
+			$tbl .= TablePrinter::RowEnd();
 		}
 		$tbl .= TablePrinter::BodyEnd();
 		$tbl .= TablePrinter::TableEnd();
@@ -295,7 +313,7 @@ class BallShortCodeHandler {
 				if ( ! isset( $players[ $player->ID ] ) ) {
 					$players[ $player->ID ] = 0;
 				}
-				$players[ $player->ID ] += ScoreHelper::get_total_player_points_for_season( $season_id );
+				$players[ $player->ID ] = ScoreHelper::get_player_season_wins( $season_id );
 			}
 
 		}
@@ -340,12 +358,17 @@ class BallShortCodeHandler {
 			if ( ! isset( $players[ $player->ID ] ) ) {
 				$players[ $player->ID ] = 0;
 			}
-			$players[ $player->ID ] += ScoreHelper::get_total_player_points_for_season( $season_id );
+			$players[ $player->ID ] = count( GameHelper::get_won_games_by_season( $player->ID, $season_id ) );
 		}
 
 		$ptmp = [];
 		foreach ( array_keys( $players ) as $player_id ) {
-			$ptmp[] = [ $player_id, $players[ $player_id ] ];
+			$total_game_wins  = GameHelper::get_won_games_by_season( $player_id, $season_id );
+			$total_game_count = 0;
+			foreach ( $total_game_wins as $game_win ) {
+				$total_game_count += GameHelper::get_player_win_count_for_game( $player_id, $game_win->ID );
+			}
+			$ptmp[] = [ $player_id,  $total_game_count,$players[ $player_id ] ];
 		}
 		uasort( $ptmp, static function ( $a, $b ) {
 			return $a [1] - $b [1];
@@ -576,7 +599,6 @@ class BallShortCodeHandler {
 
 
 	}
-
 
 
 }

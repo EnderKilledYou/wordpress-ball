@@ -64,6 +64,8 @@ final class StackTest extends TestCase {
 	public function test_short_codes(): void {
 		$season_id =16;//  create_first_default_season();
 
+		$last_game= GameHelper::get_last_game(12);
+
 		$games     = GameHelper::get_games_by_season( $season_id );
 		foreach ( $games as $game ) {
 			$id         = $game->ID;

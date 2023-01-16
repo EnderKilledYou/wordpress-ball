@@ -129,7 +129,7 @@ class GameHelper {
 
 				// meta query takes an array of arrays, watch out for this!
 				array(
-					'key'   => self::$winner_id,
+					'key'   => self::$match_winner,
 					'value' => $player_id,
 					//   'compare' => 'IN'
 				),
@@ -314,7 +314,7 @@ class GameHelper {
 			$game_state = self::get_game_state_key( $game_count );
 		}
 
-		return get_post_meta( $game_id, $game_state, true );
+		return (int) get_post_meta( $game_id, $game_state, true );
 	}
 
 	public static function update_game_complete( $game_id, bool $is_winner_player1, $game_count ): void {
@@ -355,7 +355,7 @@ class GameHelper {
 	 * @return mixed
 	 */
 	public static function get_player1_ID( $game_id ) {
-		return get_post_meta( $game_id, self::$player_1, true );
+		return (int) get_post_meta( $game_id, self::$player_1, true );
 	}
 
 	/**
@@ -364,7 +364,7 @@ class GameHelper {
 	 * @return mixed
 	 */
 	public static function get_player2_ID( $game_id ) {
-		return get_post_meta( $game_id, self::$player_2, true );
+		return (int) get_post_meta( $game_id, self::$player_2, true );
 	}
 
 	/**
@@ -373,8 +373,10 @@ class GameHelper {
 	 * @return mixed
 	 */
 	public static function get_player1_score( $game_id, $game_count = 0 ) {
-		return get_post_meta( $game_id, self::get_player1_key( $game_count ), true );
+		return (int) get_post_meta( $game_id, self::get_player1_key( $game_count ), true );
 	}
+
+
 
 	/**
 	 * @param $game_id
@@ -383,7 +385,7 @@ class GameHelper {
 	 */
 	public static function get_winner_id( $game_id, $game_count ) {
 
-		return get_post_meta( $game_id, self::get_winner_key( $game_count ), true );
+		return (int) get_post_meta( $game_id, self::get_winner_key( $game_count ), true );
 	}
 
 	/**
@@ -422,7 +424,7 @@ class GameHelper {
 	 * @return mixed
 	 */
 	public static function get_player2_score( $game_id, $game_count = 0 ) {
-		return get_post_meta( $game_id, self::get_player2_key( $game_count ), true );
+		return (int) get_post_meta( $game_id, self::get_player2_key( $game_count ), true );
 	}
 
 	public static function create_game( int $season_id, int $match_id, $total_games, $player1_id, $player2_id, $lowest_machine_id ): void {
@@ -517,7 +519,6 @@ class GameHelper {
 		for ( $i = 0; $i < $game_count; $i ++ ) {
 
 
-
 			if ( self::get_winner_id( $game_id, $i ) === $player_id ) {
 
 				$win_count ++;
@@ -576,7 +577,7 @@ class GameHelper {
 	}
 
 	public static function get_match_winner( $game_id ) {
-		return get_post_meta( $game_id, self::$match_winner, true );
+		return (int) get_post_meta( $game_id, self::$match_winner, true );
 	}
 
 	/**
@@ -598,10 +599,10 @@ class GameHelper {
 	}
 
 	public static function get_match_id( int $game_id ) {
-		return get_post_meta( $game_id, self::$match_id, true );
+		return (int) get_post_meta( $game_id, self::$match_id, true );
 	}
 
-	private static function get_player_win_count_for_game( $player_id, int $game_id ): int {
+	public static function get_player_win_count_for_game( $player_id, int $game_id ): int {
 		$total_games = self::get_game_count( $game_id );
 		$wins        = 0;
 		for ( $i = 0; $i < $total_games; $i ++ ) {
@@ -624,6 +625,20 @@ class GameHelper {
 		}
 
 		return $highest;
+	}
+
+	public static function get_last_game( $player_id ): int {
+		$games = self::get_all_player_games( $player_id );
+
+		$complete_games = array_filter( $games, function ( $item ) {
+			return self::get_match_winner( $item->ID);
+
+		} );
+		if ( count( $complete_games ) === 0 ) {
+			return 0;
+		}
+
+		return $complete_games[ count( $complete_games ) - 1 ]->ID;
 	}
 
 

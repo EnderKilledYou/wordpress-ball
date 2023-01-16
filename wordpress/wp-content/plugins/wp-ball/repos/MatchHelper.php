@@ -23,7 +23,7 @@ class MatchHelper {
 	}
 
 	public static function get_week( $match_id ) {
-		return get_post_meta( $match_id, self::$week, true );
+		return (int) get_post_meta( $match_id, self::$week, true );
 	}
 
 
