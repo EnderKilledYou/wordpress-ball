@@ -44,10 +44,30 @@ class BallPostSaveHandler {
 			}
 		}
 
-		if ( isset( $_REQUEST['game_complete'], $_REQUEST['winner_id'] ) && is_numeric( $_REQUEST['winner_id'] ) ) {
+		if ( isset( $_REQUEST['game_complete'] )) {
+			$player1        = GameHelper::get_player1_ID( $id );
+			$player2        = GameHelper::get_player2_ID( $id );
+			if ( $game_index < 0 ) {
 
-			$player1          = GameHelper::get_player1_ID( $id );
-			$winner_id        = (int) $_REQUEST['winner_id'];
+				$player_1_score = GameHelper::get_player_win_count_for_game( $player1 );
+
+				$player_2_score = GameHelper::get_player_win_count_for_game( $player2 );
+				if ( $player_1_score > $player_2_score ) {
+					$winner_id = $player1;
+				} else {
+					$winner_id = $player2;
+				}
+			} else {
+				$player_1_score = GameHelper::get_player_score_from_game( $player1,$id,$game_index );
+
+				$player_2_score = GameHelper::get_player_score_from_game( $player2 ,$id,$game_index);
+				if ( $player_1_score > $player_2_score ) {
+					$winner_id = $player1;
+				} else {
+					$winner_id = $player2;
+				}
+			}
+
 			$bwinner_player_1 = $player1 === $winner_id;
 
 			GameHelper::update_game_complete( $id, $bwinner_player_1, $game_index );

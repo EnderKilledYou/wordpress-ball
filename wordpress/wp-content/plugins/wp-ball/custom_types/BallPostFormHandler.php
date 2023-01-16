@@ -154,14 +154,6 @@ class BallPostFormHandler {
                     </label>
 
 
-                    <label>
-						<?php echo $player1_title; ?> Winner?
-                        <input type="checkbox" name="winner_id" value="<?php echo $player1_id; ?>"/>
-                    </label>
-                    <label>
-						<?php echo $player2_title; ?> Winner?
-                        <input type="checkbox" name="winner_id" value="<?php echo $player2_id; ?>"/>
-                    </label>
                     <br/>
                     <label>
                         Game Complete
