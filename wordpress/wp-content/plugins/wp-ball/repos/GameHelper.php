@@ -292,6 +292,9 @@ class GameHelper {
 	private static string $machine_id = 'machine_id';
 	private static string $season_id = 'season_id';
 	private static string $total_games = 'total_games';
+	private static string $match_size_index = 'match_size_index';
+	private static string $match_count_index = 'match_count_index';
+
 	private static string $player_2 = 'player_2';
 	private static string $player_1_score = 'player_1_score';
 	private static string $player_2_score = 'player_2_score';
@@ -305,7 +308,7 @@ class GameHelper {
 		return self::get_game_complete( $game_id, $game_count ) === self::$game_state_complete;
 	}
 
-	public static function get_game_complete( $game_id, $game_count )  {
+	public static function get_game_complete( $game_id, $game_count ) {
 		if ( $game_count === - 1 ) {
 
 			$game_state = self::$game_state;
@@ -314,7 +317,7 @@ class GameHelper {
 			$game_state = self::get_game_state_key( $game_count );
 		}
 
-		return  get_post_meta( $game_id, $game_state, true );
+		return get_post_meta( $game_id, $game_state, true );
 	}
 
 	public static function update_game_complete( $game_id, bool $is_winner_player1, $game_count ): void {
@@ -377,7 +380,6 @@ class GameHelper {
 	}
 
 
-
 	/**
 	 * @param $game_id
 	 *
@@ -427,7 +429,25 @@ class GameHelper {
 		return (int) get_post_meta( $game_id, self::get_player2_key( $game_count ), true );
 	}
 
-	public static function create_game( int $season_id, int $match_id, $total_games, $player1_id, $player2_id, $lowest_machine_id ): void {
+	/**
+	 * @param $game_id
+	 * the index of the game in the group,
+	 * @return mixed
+	 */
+	public static function get_match_size_index( $game_id ) {
+		return (int) get_post_meta( $game_id, self::$match_size_index, true );
+	}
+
+	/**
+	 * @param $game_id
+	 * the index of which group of matches
+	 * @return mixed
+	 */
+	public static function get_match_count_index( $game_id ) {
+		return (int) get_post_meta( $game_id, self::$match_size_index, true );
+	}
+
+	public static function create_game( int $season_id, int $match_id, $total_games, $player1_id, $player2_id, $lowest_machine_id, $match_size_index, $match_count_index ): void {
 		$player1 = PlayerHelper::get_player( $player1_id );
 		$player2 = PlayerHelper::get_player( $player2_id );
 		$machine = get_post( $lowest_machine_id );
@@ -442,6 +462,8 @@ class GameHelper {
 		wp_publish_post( $stat );
 		update_post_meta( $stat, self::$season_id, $season_id );
 		update_post_meta( $stat, self::$total_games, $total_games );
+		update_post_meta( $stat, self::$match_size_index, $match_size_index );
+		update_post_meta( $stat, self::$match_count_index, $match_count_index );
 		update_post_meta( $stat, self::$match_id, $match_id );
 		update_post_meta( $stat, self::$player_1, $player1_id );
 		update_post_meta( $stat, self::$machine_id, $lowest_machine_id );
@@ -631,7 +653,7 @@ class GameHelper {
 		$games = self::get_all_player_games( $player_id );
 
 		$complete_games = array_filter( $games, function ( $item ) {
-			return self::get_match_winner( $item->ID);
+			return self::get_match_winner( $item->ID );
 
 		} );
 		if ( count( $complete_games ) === 0 ) {

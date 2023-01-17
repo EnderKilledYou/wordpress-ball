@@ -145,7 +145,7 @@ class ShortCodeHelpers {
 		return ShortCodeHelpers::create_game_table( $total_games, $player_1_name, $game_id, $player_2_name, $machine_name, $get_player1_wins[0], $get_player2_wins[0], $player_1_winner, $player_2_winner );
 	}
 
-	public static function create_match_table( WP_Post $match ) {
+	public static function create_match_table( WP_Post $match, $match_index, $game_index ) {
 		$date  = MatchHelper::get_date( $match->ID );
 		$games = GameHelper::get_match_games( $match->ID );
 
@@ -154,9 +154,24 @@ class ShortCodeHelpers {
 		$tbl .= TablePrinter::BodyStart();
 		$tbl .= TablePrinter::BodyEnd();
 		$tbl .= TablePrinter::TableEnd();
+		$curr_match_index = 0;
+
 		foreach ( $games as $game ) {
-
-
+			$game_group_index = GameHelper::get_match_count_index( $game->ID );
+			//the group or all groups
+			if ( ( $match_index >= 0 ) && $game_group_index !== $match_index ) {
+				continue;
+			}
+			if ( $game_index >= 0 ) { // the game in the group
+				$game_match_index = GameHelper::get_match_size_index( $game->ID );
+				if ( $game_match_index !== $game_index ) {
+					continue;
+				}
+			}
+			if($game_group_index !== $curr_match_index) {
+				$match_printed_index = $game_group_index + 1;
+				$tbl .= "<h2>Match $match_printed_index</h2>";
+			}
 			$game_id = $game->ID;
 			$tbl     .= self::get_table_from_game_id( $game_id );
 
@@ -179,7 +194,7 @@ class ShortCodeHelpers {
 		$i   = 1;
 		foreach ( $players as $pdata ) {
 			$tbl .= TablePrinter::RowStart();
-			[ $pId, $score,$total_gw ] = $pdata;
+			[ $pId, $score, $total_gw ] = $pdata;
 			$player    = get_post( $pId );
 			$link      = get_post_permalink( $pId );
 			$last_game = GameHelper::get_last_game( $pId );
@@ -368,7 +383,7 @@ class BallShortCodeHandler {
 			foreach ( $total_game_wins as $game_win ) {
 				$total_game_count += GameHelper::get_player_win_count_for_game( $player_id, $game_win->ID );
 			}
-			$ptmp[] = [ $player_id,  $total_game_count,$players[ $player_id ] ];
+			$ptmp[] = [ $player_id, $total_game_count, $players[ $player_id ] ];
 		}
 		uasort( $ptmp, static function ( $a, $b ) {
 			return $a [1] - $b [1];
@@ -474,13 +489,17 @@ class BallShortCodeHandler {
 	public static function match_table( $atts ): string {
 		$atts = shortcode_atts(
 			array(
-				'match_id' => '0',
+				'match_id'    => 0,
+				'match_index' => - 1,
+				'game_index'  => - 1,
 			),
 			$atts,
 			'match_table'
 		);
 
-		$id = (int) $atts['match_id'];
+		$id          = (int) $atts['match_id'];
+		$match_index = (int) $atts['match_index'];
+		$game_index  = (int) $atts['game_index'];
 		if ( $id !== 0 ) {
 			$match_id = $id;
 		} else {
@@ -492,7 +511,7 @@ class BallShortCodeHandler {
 		$match = get_post( $match_id );
 
 		//create_game_tablez
-		return ShortCodeHelpers::create_match_table( $match );
+		return ShortCodeHelpers::create_match_table( $match, $match_index, $game_index );
 
 	}
 

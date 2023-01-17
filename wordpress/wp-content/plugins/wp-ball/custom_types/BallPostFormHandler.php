@@ -66,20 +66,20 @@ class BallPostFormHandler {
 		$date_week       = date( "W" );
 //		if ( $date_week !== $match_date_week ) {
 //			?>
-<!--            <h2>This Match is not open yet</h2>-->
-<!---->
-<!--			--><?php
+        <!--            <h2>This Match is not open yet</h2>-->
+        <!---->
+        <!--			--><?php
 //            return;
 //		}
-		$player1_id     = GameHelper::get_player1_ID( $game_id );
-		$game_count     = GameHelper::get_game_count( $game_id );
-		$player2_id     = GameHelper::get_player2_ID( $game_id );
-		$player1_title  = get_the_title( $player1_id );
-		$player2_title  = get_the_title( $player2_id );
-		$player1_score  = GameHelper::get_player1_score( $game_id, $game_index );
-		$player2_score  = GameHelper::get_player2_score( $game_id, $game_index );
-		$game_state     = GameHelper::is_game_complete( $game_id, $game_index );
-      
+		$player1_id    = GameHelper::get_player1_ID( $game_id );
+		$game_count    = GameHelper::get_game_count( $game_id );
+		$player2_id    = GameHelper::get_player2_ID( $game_id );
+		$player1_title = get_the_title( $player1_id );
+		$player2_title = get_the_title( $player2_id );
+		$player1_score = GameHelper::get_player1_score( $game_id, $game_index );
+		$player2_score = GameHelper::get_player2_score( $game_id, $game_index );
+		$game_state    = GameHelper::is_game_complete( $game_id, $game_index );
+
 
 		$game_state_all = GameHelper::is_game_complete( $game_id, - 1 );
 		if ( $game_state_all ) {
@@ -219,39 +219,60 @@ class BallPostFormHandler {
                 </div>
             </div>
             <div class=" inside ">
-                <div id="postcustomstuff">
 
-                </div>
-                <p>
-                    Players can be removed by removing the taxonomy for the season (same as the slug) from the
-                    score. </p>
-                <label>
-                    <select multiple name="players[]">
-						<?php
-						foreach ( $players as $player ) {
-							$isCurrent = self::IsCurrentPlayer( $player, $current_players_scores );
-							$selected  = '';
-							if ( $isCurrent ) {
-								$selected = ' selected ';
-							}
+
+                <div>
+                    <label>
+                        Players to add to this auto generation.
+                        <select multiple name="players[]">
+							<?php
+							foreach ( $players as $player ) {
+								$isCurrent = self::IsCurrentPlayer( $player, $current_players_scores );
+								$selected  = '';
+								if ( $isCurrent ) {
+									$selected = ' selected ';
+								}
+								?>
+
+                                <option <?php echo $selected; ?> value="<?php echo $player->ID; ?>">
+									<?php echo $player->post_title; ?>
+                                </option>
+							<?php }
 							?>
 
-                            <option <?php echo $selected; ?> value="<?php echo $player->ID; ?>">
-								<?php echo $player->post_title; ?>
-                            </option>
-						<?php }
-						?>
+                        </select>
+                    </label></div>
 
-                    </select>
-                </label>
-                <label>
-                    Generate Total Games per week per match:
-                    <input name="total_games" value="3">
-                </label>
-                <label>
-                    Generate Total weeks:
-                    <input name="total_weeks" value="7">
-                </label>
+                <div>
+                    <label>
+                        Generate these as finals week with people closest in standing?
+                        <input name="generate_finals" type="checkbox" value="yes">
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        How many games per match:
+                        <input name="match_size" value="5">
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        How many matches per week:
+                        <input name="match_count" value="4">
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        How many rounds per game:
+                        <input name="total_games" value="3">
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        How many weeks:
+                        <input name="total_weeks" value="7">
+                    </label>
+                </div>
             </div>
         </div>
 

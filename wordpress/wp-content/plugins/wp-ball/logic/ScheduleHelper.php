@@ -7,39 +7,54 @@ class ScheduleHelper {
 		if ( isset( $_REQUEST['total_games'] ) && is_numeric( $_REQUEST['total_games'] ) ) {
 			$total_games = abs( (int) $_REQUEST['total_games'] );
 		}
-		$machines = MachineHelper::get_machines();
+		$machines = MachineHelper::get_assignable_machines();
 		if ( count( $machines ) === 0 ) {
-			BallAdminNoticeHandler::AddError( "You need to add a machine first" );
+			BallAdminNoticeHandler::AddError( "You need to add a machine first or remove one as draft" );
 
 			return;
 		}
 		$scores = ScoreHelper::get_season_scores( $id );
 		if ( count( $scores ) === 0 ) {
-			BallAdminNoticeHandler::AddError( "You need to add a players first" );
+			BallAdminNoticeHandler::AddError( "You can't rebuild the schedule if there are no players." );
 
 			return;
 
 		}
-		$players = PlayerHelper::map_scores_to_players( $scores );
-
+		$players     = PlayerHelper::map_scores_to_players( $scores );
+		$pIndex      = 0;
 		$matches     = MatchHelper::get_season_matches( $id );
 		$match_count = count( $matches );
+		$lineup      = self::get_player_vs_count( $matches, $players );
 		foreach ( $matches as $match ) {
+			$match_count = MatchHelper::get_match_count( $match->ID );
+			$match_size  = MatchHelper::get_match_size( $match->ID );
+			for ( $i = 0; $i < $match_count; $i ++ ) {
+				for ( $z = 0; $z < $match_size; $z ++ ) {
+					if ( $pIndex >= count( $players ) ) {
+						$pIndex = 0;
+					}
+					$player = $players[ $pIndex ];
+					$pIndex ++;
+					$player_id = $player->ID;
+					$all_but   = array_values( array_filter( $players, static function ( $e ) use ( $player_id ) {
+						return $player_id !== $e->ID;
+					} ) );
+					$avg       = self::get_player_score_avg( $player_id );
+					$lowest    = self::find_lowest_played( $lineup[ $player_id ], $all_but, $avg, false );
+					if ( ! $lowest ) {
+						continue;
+					}
+					$lowest_machine = MachineHelper::get_lowest_machine( $player_id, $lowest );
 
-			$lineup = self::get_player_vs_count( $matches, $players );
-			foreach ( $players as $player ) {
-
-				$player_id      = $player->ID;
-				$all_but        = array_values( array_filter( $players, static function ( $e ) use ( $player_id ) {
-					return $player_id !== $e->ID;
-				} ) );
-				$avg            = self::get_player_score_avg( $player_id );
-				$lowest         = self::find_lowest_played( $lineup[ $player_id ], $all_but, $avg, -- $match_count === 0 );
-				$lowest_machine = MachineHelper::get_lowest_machine( $player_id, $lowest );
-
-				GameHelper::create_game( $id, $match->ID, $total_games, $player_id, $lowest, $lowest_machine );
-				MachineHelper::increment_total_games_played( $lowest_machine );
+					GameHelper::create_game( $id, $match->ID, $total_games, $player_id, $lowest, $lowest_machine,$z,$i  );
+					MachineHelper::increment_total_games_played( $lowest_machine );
+					if ( ! isset( $lineup[ $player_id ][ $lowest ] ) ) {
+						$lineup[ $player_id ][ $lowest ] = 0;
+					}
+					$lineup[ $player_id ][ $lowest ] ++;
+				}
 			}
+
 
 		}
 

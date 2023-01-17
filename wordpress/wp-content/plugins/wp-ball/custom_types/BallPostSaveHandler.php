@@ -108,7 +108,10 @@ class BallPostSaveHandler {
 	}
 
 	public static function RebuildSchedule( $id ): void {
-		if ( ! isset( $_REQUEST['generate_matches'], $_REQUEST['start_date'] ) ) {
+		if ( ! isset( $_REQUEST['generate_matches'], $_REQUEST['start_date'], $_REQUEST['match_count'], $_REQUEST['match_size'] ) ) {
+			return;
+		}
+		if(!is_numeric($_REQUEST['match_count']) || !is_numeric($_REQUEST['match_size'])){
 			return;
 		}
 		$season      = get_post( $id );
@@ -122,7 +125,7 @@ class BallPostSaveHandler {
 		for ( $i = 0; $i < $total_weeks; $i ++ ) {
 			if ( ! self::find_match_by_week( $matches, $timestamp ) ) {
 
-				$match_id = MatchHelper::create_match( $id, $i + 1, $season->post_title, date( "m/d/Y", $timestamp ) );
+				$match_id = MatchHelper::create_match( $id, $i + 1, $season->post_title, date( "m/d/Y", $timestamp, ), (int)$_REQUEST['match_count'],(int) $_REQUEST['match_size'] );
 			}
 			$timestamp = strtotime( "+ 7 days", $timestamp );
 		}

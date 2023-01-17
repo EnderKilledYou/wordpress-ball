@@ -4,7 +4,8 @@ class MatchHelper {
 	private static string $season_id = 'season_id';
 	private static string $week = 'week';
 	private static string $date = 'date';
-
+	private static string $match_count = 'match_count'; // how many matches (4)
+	private static string $match_size = 'match_size'; //how big is each match (5)
 
 	/**
 	 * @return WP_Post[]
@@ -47,7 +48,7 @@ class MatchHelper {
 		] );
 	}
 
-	public static function create_match( int $season_id, int $week, $txt, $date ) {
+	public static function create_match( int $season_id, int $week, $txt, $date, $match_count, $match_size ) {
 
 		$post_title = "Week $week: $txt $date";
 		$stat       = wp_insert_post( [
@@ -60,6 +61,8 @@ class MatchHelper {
 		update_post_meta( $stat, self::$season_id, $season_id );
 		update_post_meta( $stat, self::$week, $week );
 		update_post_meta( $stat, self::$date, $date );
+		update_post_meta( $stat, self::$match_count, $match_count );
+		update_post_meta( $stat, self::$match_size, $match_size );
 		wp_publish_post( $stat );
 //		update_post_meta( $stat, self::$player_2, $player2->ID );
 //		update_post_meta( $stat, self::$player_1_score, "0" );
@@ -68,6 +71,14 @@ class MatchHelper {
 //		update_post_meta( $stat, self::$game_state, 'pending' );
 
 		return $stat;
+	}
+
+	public static function get_match_count( int $match_id ) {
+		return (int) get_post_meta( $match_id, self::$match_count, true );
+	}
+
+	public static function get_match_size( int $match_id ) {
+		return (int) get_post_meta( $match_id, self::$match_size, true );
 	}
 
 

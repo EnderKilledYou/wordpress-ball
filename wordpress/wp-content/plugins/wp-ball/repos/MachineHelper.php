@@ -13,6 +13,17 @@ class MachineHelper {
 		] );
 
 	}
+	/**
+	 * @return WP_Post[]
+	 */
+	public static function get_assignable_machines(): array {
+		return get_posts( [
+			'post_type' => WPBallObjectsRepository::MACHINE_POST_TYPE,
+			'posts_per_page' => - 1,
+			'post_status' => BallPostSaveHandler::$all_posts_but_draft
+		] );
+
+	}
 
 	public static function get_lowest_machine( int $p1, int $p2 ): int {
 
