@@ -22,39 +22,38 @@ No parameters displays the over all leader board
 
 
 ### [season_leader_board] 
-optional season_id when not on a season post displays the season leader board
+* optional season_id when not on a season post displays the season leader board
 
 ### [player_season_stats]
 required season_id, 
-optional player_id when not on a player post displays the player's season stats
+* optional player_id when not on a player post displays the player's season stats
 
 ### [player_stats]
-optional player_id when not on a player post displays the player stats
+* optional player_id when not on a player post displays the player stats
 
 ### [game_table]
 #### a single game consisting of several rounds of play
-optional game_id when not on a game post displays score for that game
+* optional game_id when not on a game post displays score for that game
 
 ### [match_table]
 #### The Week table
-optional match_id when not on a match post displays all the games for that match
-optional match_index  When set, displays only the games in the particular match (group)
-optional game_index when set, displays the game number. for example, if you only want to show 
-game 3 then set this to three. When combined with match_index it will only show game 3 of the selected
+* optional match_id when not on a match post displays all the games for that match
+* optional match_index  When set, displays only the games in the particular match (group)
+* optional game_index when set, displays the game number. for example, if you only want to show  game 3 then set this to three. When combined with match_index it will only show game 3 of the selected
 match index. By itself it will show game 3 of all matches in that week. 
 
 ### [season_table]
 #### A group of weekly matches
-optional season_id when not on a season post displays the matches for the season
+* optional season_id when not on a season post displays the matches for the season
 
 ### [playerwins]
-optional player_id when not on a player post displays the total wins of the player
+* optional player_id when not on a player post displays the total wins of the player
 
 ### [playerscore]
-optional player_id when not on a player post displays the sum of all the players points
+* optional player_id when not on a player post displays the sum of all the players points
 
 ### [playerlosses]
-optional player_id when not on a player post displays the total losses of the player
+* optional player_id when not on a player post displays the total losses of the player
 
 For devs:
 Quick Setup:

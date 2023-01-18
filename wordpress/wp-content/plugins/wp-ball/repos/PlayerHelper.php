@@ -61,4 +61,20 @@ class PlayerHelper {
 	public static function get_player_user_id( $player1_id ) {
 		return (int) get_post_meta( $player1_id, self::$player_user_id, true );
 	}
+
+	public static function get_player_with_least_games_in_season( $season_id, $players ): int {
+		$min    = 0;
+		$lowest = $players[0];
+		$pCount = count( $players );
+		for ( $i = 1; $i < $pCount; $i ++ ) {
+			$games_player = count( GameHelper::get_player_games_by_season( $players[ $i ]->ID, $season_id ) );
+			if ( $min > $games_player ) {
+				$min    = $games_player;
+				$lowest = $players[ $i ]->ID;
+
+			}
+		}
+
+		return $lowest->ID;
+	}
 }

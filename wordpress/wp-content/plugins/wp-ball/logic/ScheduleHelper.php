@@ -3,6 +3,7 @@
 class ScheduleHelper {
 
 	public static function RebuildSchedule( $id ) {
+		set_time_limit( 0 );
 		$total_games = 3;
 		if ( isset( $_REQUEST['total_games'] ) && is_numeric( $_REQUEST['total_games'] ) ) {
 			$total_games = abs( (int) $_REQUEST['total_games'] );
@@ -20,33 +21,36 @@ class ScheduleHelper {
 			return;
 
 		}
-		$players     = PlayerHelper::map_scores_to_players( $scores );
-		$pIndex      = 0;
-		$matches     = MatchHelper::get_season_matches( $id );
-		$match_count = count( $matches );
-		$lineup      = self::get_player_vs_count( $matches, $players );
+		$players = PlayerHelper::map_scores_to_players( $scores );
+		if ( count( $scores ) !== count( $players ) ) {
+			BallAdminNoticeHandler::AddError( "Player season score / player count mismatch. Have you deleted something?" );
+
+			return;
+
+		}
+		$matches = MatchHelper::get_season_matches( $id );
+		$lineup  = self::get_player_vs_count( $matches, $players );
 		foreach ( $matches as $match ) {
 			$match_count = MatchHelper::get_match_count( $match->ID );
 			$match_size  = MatchHelper::get_match_size( $match->ID );
-			for ( $i = 0; $i < $match_count; $i ++ ) {
-				for ( $z = 0; $z < $match_size; $z ++ ) {
-					if ( $pIndex >= count( $players ) ) {
-						$pIndex = 0;
-					}
-					$player = $players[ $pIndex ];
-					$pIndex ++;
-					$player_id = $player->ID;
-					$all_but   = array_values( array_filter( $players, static function ( $e ) use ( $player_id ) {
+
+
+			for ( $i = 0; $i < $match_size; $i ++ ) {
+				$current_match_count = MatchHelper::get_current_match_count( $match->ID, $i );
+				for ( $z = $current_match_count; $z < $match_count; $z ++ ) {
+					$player_id = PlayerHelper::get_player_with_least_games_in_season( $id, $players );
+
+					$all_but = array_values( array_filter( $players, static function ( $e ) use ( $player_id ) {
 						return $player_id !== $e->ID;
 					} ) );
-					$avg       = self::get_player_score_avg( $player_id );
-					$lowest    = self::find_lowest_played( $lineup[ $player_id ], $all_but, $avg, false );
+
+					$lowest = self::find_lowest_played( $lineup[ $player_id ], $all_but );
 					if ( ! $lowest ) {
 						continue;
 					}
 					$lowest_machine = MachineHelper::get_lowest_machine( $player_id, $lowest );
 
-					GameHelper::create_game( $id, $match->ID, $total_games, $player_id, $lowest, $lowest_machine,$z,$i  );
+					GameHelper::create_game( $id, $match->ID, $total_games, $player_id, $lowest, $lowest_machine, $z, $i );
 					MachineHelper::increment_total_games_played( $lowest_machine );
 					if ( ! isset( $lineup[ $player_id ][ $lowest ] ) ) {
 						$lineup[ $player_id ][ $lowest ] = 0;
@@ -59,10 +63,7 @@ class ScheduleHelper {
 		}
 
 		unset( $_REQUEST['generate_matches'] );
-		wp_update_post( [
-			'post_content' => '[season_table]',
-			'ID'           => $id,
-		] );
+
 		//	$matches_table = self::create_match_table( MatchHelper::get_season_matches( $id ) );
 
 
@@ -137,39 +138,43 @@ class ScheduleHelper {
 	 *
 	 * @return int
 	 */
-
-
-	private static function find_lowest_played( array $counter, array $playable, $avg, bool $final_week ): int {
-
+	private static function find_lowest_played_finals( $player_id, array $counter, array $playable ): int {
 		$first_id     = $playable[0]->ID;
 		$lowest       = $counter[ $first_id ];
 		$lowest_index = 0;
-		$i            = 0;
-		$distance     =
-		$lowest_dist = abs( $avg - self::get_player_score_avg( $first_id ) );
-		foreach ( $playable as $play ) {
-			if ( $i === 0 ) {
-				$i ++;
-				continue;
-			}
-
-			if ( $counter[ $play->ID ] < $lowest ) {
-				$lowest       = $counter[ $play->ID ];
-				$lowest_index = $i;
-				$lowest_dist  = abs( $avg - self::get_player_score_avg( $play->ID ) );
-				$i ++;
-				continue;
-			}
-			if ( ( $counter[ $play->ID ] === $lowest ) && $final_week ) {
+		$avg          = self::get_player_score_avg( $player_id );
+		$lowest_dist  = abs( $avg - self::get_player_score_avg( $first_id ) );
+		$playerCount  = count( $playable );
+		for ( $i = 1; $i < $playerCount; $i ++ ) {
+			$play = $playable[ $i ];
+			if ( ( $counter[ $play->ID ] === $lowest ) ) {
 				$dist = abs( $avg - self::get_player_score_avg( $play->ID ) );
 				if ( $dist < $lowest_dist ) {
 					$lowest_dist  = $dist;
 					$lowest_index = $i;
 					$i ++;
-					continue;
+
 				}
 			}
-			$i ++;
+		}
+
+		return $playable[ $lowest_index ]->ID;
+	}
+
+	private static function find_lowest_played( array $counter, array $playable ): int {
+
+		$first_id     = $playable[0]->ID;
+		$lowest       = $counter[ $first_id ];
+		$lowest_index = 0;
+		$i            = 0;
+		$playerCount  = count( $playable );
+		for ( $i = 1; $i < $playerCount; $i ++ ) {
+			$play = $playable[ $i ];
+			if ( $counter[ $play->ID ] < $lowest ) {
+				$lowest       = $counter[ $play->ID ];
+				$lowest_index = $i;
+
+			}
 
 		}
 

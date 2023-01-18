@@ -81,5 +81,10 @@ class MatchHelper {
 		return (int) get_post_meta( $match_id, self::$match_size, true );
 	}
 
+	public static function get_current_match_count( int $match_id, $match_index ): int {
+		$games = GameHelper::get_match_games_by_group($match_id,$match_index);
+		return count($games);
+	}
+
 
 }

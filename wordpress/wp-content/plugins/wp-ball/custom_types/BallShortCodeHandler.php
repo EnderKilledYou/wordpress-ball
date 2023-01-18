@@ -149,13 +149,21 @@ class ShortCodeHelpers {
 		$date  = MatchHelper::get_date( $match->ID );
 		$games = GameHelper::get_match_games( $match->ID );
 
-		$tbl = TablePrinter::TableHeading( $date );
-		$tbl .= TablePrinter::TableStart();
-		$tbl .= TablePrinter::BodyStart();
-		$tbl .= TablePrinter::BodyEnd();
-		$tbl .= TablePrinter::TableEnd();
+		$tbl              = TablePrinter::TableHeading( $date );
+		$tbl              .= TablePrinter::TableStart();
+		$tbl              .= TablePrinter::BodyStart();
+		$tbl              .= TablePrinter::BodyEnd();
+		$tbl              .= TablePrinter::TableEnd();
 		$curr_match_index = 0;
-
+		if ( count( $games ) === 0 ) {
+			return "No Games";
+		}
+		usort( $games, static function ( $a, $b ) {
+			return GameHelper::get_match_count_index( $a->ID ) - GameHelper::get_match_count_index( $b->ID );
+		} );
+		$game_group_index    = GameHelper::get_match_count_index( $games[0] );
+		$match_printed_index = $game_group_index + 1;
+		$tbl                 .= "<h2>Match $match_printed_index</h2>";
 		foreach ( $games as $game ) {
 			$game_group_index = GameHelper::get_match_count_index( $game->ID );
 			//the group or all groups
@@ -168,9 +176,10 @@ class ShortCodeHelpers {
 					continue;
 				}
 			}
-			if($game_group_index !== $curr_match_index) {
+			if ( $game_group_index !== $curr_match_index ) {
 				$match_printed_index = $game_group_index + 1;
-				$tbl .= "<h2>Match $match_printed_index</h2>";
+				$curr_match_index    = $game_group_index;
+				$tbl                 .= "<h2>Match $match_printed_index</h2>";
 			}
 			$game_id = $game->ID;
 			$tbl     .= self::get_table_from_game_id( $game_id );

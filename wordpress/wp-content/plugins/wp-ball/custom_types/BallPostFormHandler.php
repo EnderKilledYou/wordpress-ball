@@ -205,6 +205,9 @@ class BallPostFormHandler {
         <div class="postbox ">
             <div class="postbox-header">
                 <h2 class="hndle  ui-sortable-handle">Add Players to current season</h2>
+                <div>
+                    <span>Add players first, then use the rebuild options.</span>
+                </div>
                 <div class="handle-actions hide-if-no-js">
 
                     <label>

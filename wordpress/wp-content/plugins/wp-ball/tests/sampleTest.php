@@ -62,11 +62,17 @@ final class StackTest extends TestCase {
 //	}
 
 	public function test_short_codes(): void {
-		$season_id =16;//  create_first_default_season();
 
-		$last_game= GameHelper::get_last_game(12);
 
-		$games     = GameHelper::get_games_by_season( $season_id );
+		$season_id                    = create_first_default_season();
+		$_REQUEST['generate_matches'] = true;
+		$_REQUEST['start_date']       = date( 'm/d/Y', strtotime( "+ 10 weeks" ) );
+		//ScheduleHelper::RebuildSchedule( $season_id );
+
+		return;
+		$last_game = GameHelper::get_last_game( 12 );
+
+		$games = GameHelper::get_games_by_season( $season_id );
 		foreach ( $games as $game ) {
 			$id         = $game->ID;
 			$game_count = GameHelper::get_game_count( $id );
@@ -139,59 +145,20 @@ final class StackTest extends TestCase {
 
 }
 
+//
 function create_first_default_season() {
-	$player_names  = [ 'john', 'tim', 'doug', 'frank', 'bilbo', 'tommy', 'francis', 'johhny' ];
-	$machine_names = [ 'mach1', 'mach2', 'mach3' ];
+	$player_names  = PlayerHelper::get_players();
+	$machine_names = MachineHelper::get_machines();
 
-	$players = [];
-	$machines=[];
-	foreach ( $machine_names as $machine_name ) {
-		$player_already_created = get_posts( [
-			'post_type'   => WPBallObjectsRepository::MACHINE_POST_TYPE,
-			"title"       => $machine_name,
-			'post_status' => BallPostSaveHandler::$all_posts
-		] );
-
-		if ( count( $player_already_created ) === 0 ) {
-			$machines[] = $tmp_id = wp_insert_post( [
-				'post_type'    => WPBallObjectsRepository::MACHINE_POST_TYPE,
-				'post_title'   => $machine_name,
-				'post_name'    => $machine_name,
-				'post_content' => '',
-
-			] );
-			wp_publish_post( $tmp_id );
-
-		}
-
-
-	}
-	foreach ( $player_names as $player_name ) {
-		$player_already_created = get_posts( [
-			'post_type'   => WPBallObjectsRepository::PLAYER_POST_TYPE,
-			"title"       => $player_name,
-			'post_status' => BallPostSaveHandler::$all_posts
-		] );
-
-		if ( count( $player_already_created ) === 0 ) {
-			$players[] = $tmp_id = wp_insert_post( [
-				'post_type'    => WPBallObjectsRepository::PLAYER_POST_TYPE,
-				'post_title'   => $player_name,
-				'post_name'    => $player_name,
-				'post_content' => '[playerwins]',
-				'post_date'    => null
-			] );
-			wp_publish_post( $tmp_id );
-
-		} else {
-			$players[] = $player_already_created[0]->ID;
-
-		}
-
-
-	}
-	$_REQUEST['players'] = $players;
-	$season_id           = wp_insert_post( [
+	$players  = array_map( static function ( $p ) {
+		return $p->ID;
+	}, $player_names );
+	$machines = [];
+//	$players = generate_players_and_machines( $machine_names, $machines, $player_names, $players );
+	$_REQUEST['players']     = $players;
+	$_REQUEST['match_size']  = 5;
+	$_REQUEST['match_count'] = 4;
+	$season_id               = wp_insert_post( [
 		'post_type'  => WPBallObjectsRepository::SEASON_POST_TYPE,
 		'post_title' => 'test season',
 
@@ -205,3 +172,61 @@ function create_first_default_season() {
 	return $season_id;
 
 }
+//
+///**
+// * @param array $machine_names
+// * @param array $machines
+// * @param array $player_names
+// * @param array $players
+// *
+// * @return array
+// */
+//function generate_players_and_machines( array $machine_names, array $machines, array $player_names, array $players ): array {
+//	foreach ( $machine_names as $machine_name ) {
+//		$player_already_created = get_posts( [
+//			'post_type'   => WPBallObjectsRepository::MACHINE_POST_TYPE,
+//			"title"       => $machine_name,
+//			'post_status' => BallPostSaveHandler::$all_posts
+//		] );
+//
+//		if ( count( $player_already_created ) === 0 ) {
+//			$machines[] = $tmp_id = wp_insert_post( [
+//				'post_type'    => WPBallObjectsRepository::MACHINE_POST_TYPE,
+//				'post_title'   => $machine_name,
+//				'post_name'    => $machine_name,
+//				'post_content' => '',
+//
+//			] );
+//			wp_publish_post( $tmp_id );
+//
+//		}
+//
+//
+//	}
+//	foreach ( $player_names as $player_name ) {
+//		$player_already_created = get_posts( [
+//			'post_type'   => WPBallObjectsRepository::PLAYER_POST_TYPE,
+//			"title"       => $player_name,
+//			'post_status' => BallPostSaveHandler::$all_posts
+//		] );
+//
+//		if ( count( $player_already_created ) === 0 ) {
+//			$players[] = $tmp_id = wp_insert_post( [
+//				'post_type'    => WPBallObjectsRepository::PLAYER_POST_TYPE,
+//				'post_title'   => $player_name,
+//				'post_name'    => $player_name,
+//				'post_content' => '[playerwins]',
+//				'post_date'    => null
+//			] );
+//			wp_publish_post( $tmp_id );
+//
+//		} else {
+//			$players[] = $player_already_created[0]->ID;
+//
+//		}
+//
+//
+//	}
+//
+//	return $players;
+//}

@@ -25,7 +25,7 @@ $seasons = PlayerHelper::get_seasons();
         <label>
             Add Test season with all players
 
-            <input type="submit" value="Add Test Season" name="add_season">
+            <input type="submit" value="Add Test Season" name="add_season" disabled>
         </label>
     </div>
     <div class="form-group">
@@ -38,7 +38,7 @@ $seasons = PlayerHelper::get_seasons();
                     <option value="<?php echo $season->ID; ?>"> <?php echo $season->post_title; ?> </option>
 				<?php } ?>
             </select>
-            <input type="submit" value="Add Scores to Last season" name="add_scores">
+            <input type="submit" value="Add Scores to Last season" name="add_scores" disabled>
         </label>
     </div>
 </form>

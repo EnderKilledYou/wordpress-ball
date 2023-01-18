@@ -20,6 +20,25 @@ class GameHelper {
 		] );
 	}
 
+	public static function get_match_games_by_group( int $match_id, int $group_index ): array {
+		return get_posts( [
+			'post_type'      => WPBallObjectsRepository::GAME_POST_TYPE,
+			'posts_per_page' => - 1,
+			'post_status'    => BallPostSaveHandler::$all_posts,
+			'meta_query'     => array(
+				array(
+					'key'   => self::$match_count_index,
+					'value' => $group_index
+				),
+				array(
+					'key'   => self::$match_id,
+					'value' => $match_id,
+					//   'compare' => 'IN'
+				)
+			),
+		] );
+	}
+
 	/**
 	 * @return WP_Post[]
 	 */
@@ -432,6 +451,7 @@ class GameHelper {
 	/**
 	 * @param $game_id
 	 * the index of the game in the group,
+	 *
 	 * @return mixed
 	 */
 	public static function get_match_size_index( $game_id ) {
@@ -441,6 +461,7 @@ class GameHelper {
 	/**
 	 * @param $game_id
 	 * the index of which group of matches
+	 *
 	 * @return mixed
 	 */
 	public static function get_match_count_index( $game_id ) {
