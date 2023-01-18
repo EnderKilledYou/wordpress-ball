@@ -63,18 +63,41 @@ class PlayerHelper {
 	}
 
 	public static function get_player_with_least_games_in_season( $season_id, $players ): int {
-		$min    = 0;
-		$lowest = $players[0];
-		$pCount = count( $players );
-		for ( $i = 1; $i < $pCount; $i ++ ) {
-			$games_player = count( GameHelper::get_player_games_by_season( $players[ $i ]->ID, $season_id ) );
-			if ( $min > $games_player ) {
-				$min    = $games_player;
-				$lowest = $players[ $i ]->ID;
 
+		$games = GameHelper::get_games_by_season( $season_id );
+		if ( count( $games ) === 0 ) {
+			return $players[0]->ID;
+		}
+		$counter = [];
+		foreach ( $players as $player ) {
+			$counter[ $player->ID ] = 0;
+		}
+		foreach ( $games as $game ) {
+			$p1_id = GameHelper::get_player1_ID( $game->ID );
+			$p2_id = GameHelper::get_player2_ID( $game->ID );
+			if ( ! isset( $counter[ $p2_id ] ) ) {
+				continue;
+			}
+			if ( ! isset( $counter[ $p1_id ] ) ) {
+				continue;
+			}
+			$counter[ $p1_id ] ++;
+			$counter[ $p2_id ] ++;
+		}
+
+		$keys   = array_keys( $counter );
+		$first  = array_shift( $keys );
+		$lowest = $first;
+		$min    = $counter[ $first ];
+		foreach ( $keys as $key ) {
+			$total = $counter[ $key ];
+			if ( $total < $min ) {
+				$min    = $total;
+				$lowest = $key;
 			}
 		}
 
-		return $lowest->ID;
+
+		return $lowest;
 	}
 }

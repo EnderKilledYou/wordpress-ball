@@ -198,8 +198,9 @@ class GameHelper {
 						'value' => $player_id,
 						//   'compare' => 'IN'
 					),
-					array( 'key' => self::$season_id, 'value' => $season_id )
+
 				),
+				array( 'key' => self::$season_id, 'value' => $season_id )
 			)
 		] );
 	}

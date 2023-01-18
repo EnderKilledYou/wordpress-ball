@@ -64,10 +64,14 @@ final class StackTest extends TestCase {
 	public function test_short_codes(): void {
 
 
-		$season_id                    = create_first_default_season();
+		$season_id = create_first_default_season(); //191
+//		$scores = ScoreHelper::get_season_scores( $season_id );
+//		$players = PlayerHelper::map_scores_to_players( $scores );
+//		$player_id = PlayerHelper::get_player_with_least_games_in_season( $season_id, $players );
+//
 		$_REQUEST['generate_matches'] = true;
 		$_REQUEST['start_date']       = date( 'm/d/Y', strtotime( "+ 10 weeks" ) );
-		//ScheduleHelper::RebuildSchedule( $season_id );
+		ScheduleHelper::RebuildSchedule( $season_id );
 
 		return;
 		$last_game = GameHelper::get_last_game( 12 );

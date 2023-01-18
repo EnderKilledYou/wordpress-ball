@@ -44,7 +44,7 @@ class ScheduleHelper {
 						return $player_id !== $e->ID;
 					} ) );
 
-					$lowest = self::find_lowest_played( $lineup[ $player_id ], $all_but );
+					$lowest = self::find_lowest_played( $id, $lineup[ $player_id ], $all_but );
 					if ( ! $lowest ) {
 						continue;
 					}
@@ -55,7 +55,11 @@ class ScheduleHelper {
 					if ( ! isset( $lineup[ $player_id ][ $lowest ] ) ) {
 						$lineup[ $player_id ][ $lowest ] = 0;
 					}
+					if ( ! isset( $lineup[ $lowest ][ $player_id ] ) ) {
+						$lineup[ $lowest ][ $player_id ] = 0;
+					}
 					$lineup[ $player_id ][ $lowest ] ++;
+					$lineup[ $lowest ][ $player_id ] ++;
 				}
 			}
 
@@ -161,7 +165,7 @@ class ScheduleHelper {
 		return $playable[ $lowest_index ]->ID;
 	}
 
-	private static function find_lowest_played( array $counter, array $playable ): int {
+	private static function find_lowest_played( $season_id, array $counter, array $playable ): int {
 
 		$first_id     = $playable[0]->ID;
 		$lowest       = $counter[ $first_id ];
@@ -176,6 +180,12 @@ class ScheduleHelper {
 
 			}
 
+		}
+		$total_same_lowest = array_filter( $playable, static function ( $play ) use ( $lowest, $counter ) {
+			return $counter[ $play->ID ] === $lowest;
+		} );
+		if ( count( $total_same_lowest ) > 0 ) {
+			return PlayerHelper::get_player_with_least_games_in_season( $season_id, $total_same_lowest );
 		}
 
 		return $playable[ $lowest_index ]->ID;
