@@ -499,6 +499,24 @@ class GameHelper {
 		update_post_meta( $stat, self::$game_state, self::$game_state_pending );
 	}
 
+	public static function get_total_player_points_for_season( int $player_id ,int $season_id): int {
+
+		$games = self::get_player_games_by_season($player_id, $season_id );
+		$sum=0;
+		foreach ( $games as $game ) {
+			if ( get_post_meta( $game->ID, self::$game_state, true ) !== self::$game_state_complete ) {
+				continue;
+			}
+			$season_id         = self::get_season_of_game( $game->ID );
+			$game_count = self::get_game_count( $game->ID );
+			for ( $i = 0; $i < $game_count; $i ++ ) {
+				$sum .= self::get_player_score_from_game( $season_id, $player_id, $game_count );
+			}
+		}
+
+		return $sum;
+	}
+
 	public static function get_total_player_points( int $player_id ): int {
 
 		$games = self::get_all_player_games( $player_id );

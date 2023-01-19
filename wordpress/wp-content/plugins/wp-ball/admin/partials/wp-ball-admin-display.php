@@ -38,7 +38,7 @@ $seasons = PlayerHelper::get_seasons();
                     <option value="<?php echo $season->ID; ?>"> <?php echo $season->post_title; ?> </option>
 				<?php } ?>
             </select>
-            <input type="submit" value="Add Scores to Last season" name="add_scores" disabled>
+            <input type="submit" value="Add Scores to Last season" name="add_scores"  >
         </label>
     </div>
 </form>

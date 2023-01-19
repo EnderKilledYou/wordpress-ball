@@ -5,6 +5,7 @@ class ScheduleHelper {
 	public static function RebuildSchedule( $id ) {
 		set_time_limit( 0 );
 		$total_games = 3;
+
 		if ( isset( $_REQUEST['total_games'] ) && is_numeric( $_REQUEST['total_games'] ) ) {
 			$total_games = abs( (int) $_REQUEST['total_games'] );
 		}
@@ -13,6 +14,12 @@ class ScheduleHelper {
 			BallAdminNoticeHandler::AddError( "You need to add a machine first or remove one as draft" );
 
 			return;
+		}
+		if ( ! isset( $_REQUEST['seasons'] ) || ! is_array( $_REQUEST['seasons'] ) ) {
+			$seasons = [ $id ];
+		} else {
+			$seasons   = $_REQUEST['seasons'];
+			$seasons[] = $id;
 		}
 		$scores = ScoreHelper::get_season_scores( $id );
 		if ( count( $scores ) === 0 ) {
@@ -28,8 +35,12 @@ class ScheduleHelper {
 			return;
 
 		}
+		$finals = false;
+		if ( isset( $_REQUEST['generate_finals'] ) && $_REQUEST['generate_finals'] === 'yes' ) {
+			$finals = true;
+		}
 		$matches = MatchHelper::get_season_matches( $id );
-		$lineup  = self::get_player_vs_count( $matches, $players );
+		$lineup  = self::get_player_vs_count( $players, $seasons );
 		foreach ( $matches as $match ) {
 			$match_count = MatchHelper::get_match_count( $match->ID );
 			$match_size  = MatchHelper::get_match_size( $match->ID );
@@ -43,8 +54,11 @@ class ScheduleHelper {
 					$all_but = array_values( array_filter( $players, static function ( $e ) use ( $player_id ) {
 						return $player_id !== $e->ID;
 					} ) );
-
-					$lowest = self::find_lowest_played( $id, $lineup[ $player_id ], $all_but );
+					if ( ! $finals ) {
+						$lowest = self::find_lowest_played( $id, $lineup[ $player_id ], $all_but );
+					} else {
+						$lowest = self::find_lowest_played_finals( $player_id, $lineup, $all_but,$id );
+					}
 					if ( ! $lowest ) {
 						continue;
 					}
@@ -94,34 +108,39 @@ class ScheduleHelper {
 	}
 
 	/**
-	 * @param array $matches
+	 * @param WP_Post $matches
+	 * @param WP_Post $players
+	 * @param WP_Post $seasons
 	 *
 	 * @return array
 	 */
-	public static function get_player_vs_count( array $matches, array $players ): array {
+	public static function get_player_vs_count( array $players, array $seasons ): array {
 		$lineup = [];
-		foreach ( $matches as $match ) {
-			$games = GameHelper::get_match_games( $match->ID );
-			foreach ( $games as $game ) {
-				$player1_id = GameHelper::get_player1_ID( $game->ID );
-				$player2_id = GameHelper::get_player2_ID( $game->ID );
-				if ( ! array_key_exists( $player1_id, $lineup ) ) {
-					$lineup[ $player1_id ] = [];
+		foreach ( $seasons as $season ) {
+			$matches = MatchHelper::get_season_matches( $season );
+			foreach ( $matches as $match ) {
+				$games = GameHelper::get_match_games( $match->ID );
+				foreach ( $games as $game ) {
+					$player1_id = GameHelper::get_player1_ID( $game->ID );
+					$player2_id = GameHelper::get_player2_ID( $game->ID );
+					if ( ! array_key_exists( $player1_id, $lineup ) ) {
+						$lineup[ $player1_id ] = [];
+					}
+					if ( ! array_key_exists( $player2_id, $lineup ) ) {
+						$lineup[ $player2_id ] = [];
+					}
+					if ( ! array_key_exists( $player2_id, $lineup[ $player1_id ] ) ) {
+						$lineup[ $player1_id ][ $player2_id ] = 0;
+					}
+					if ( ! array_key_exists( $player1_id, $lineup[ $player2_id ] ) ) {
+						$lineup[ $player2_id ][ $player1_id ] = 0;
+					}
+					$lineup[ $player1_id ][ $player2_id ] ++;
+					$lineup[ $player2_id ][ $player1_id ] ++;
+
 				}
-				if ( ! array_key_exists( $player2_id, $lineup ) ) {
-					$lineup[ $player2_id ] = [];
-				}
-				if ( ! array_key_exists( $player2_id, $lineup[ $player1_id ] ) ) {
-					$lineup[ $player1_id ][ $player2_id ] = 0;
-				}
-				if ( ! array_key_exists( $player1_id, $lineup[ $player2_id ] ) ) {
-					$lineup[ $player2_id ][ $player1_id ] = 0;
-				}
-				$lineup[ $player1_id ][ $player2_id ] ++;
-				$lineup[ $player2_id ][ $player1_id ] ++;
 
 			}
-
 		}
 		foreach ( $players as $player_ ) {
 
@@ -142,17 +161,17 @@ class ScheduleHelper {
 	 *
 	 * @return int
 	 */
-	private static function find_lowest_played_finals( $player_id, array $counter, array $playable ): int {
+	private static function find_lowest_played_finals( $player_id, array $counter, array $playable ,$season_id): int {
 		$first_id     = $playable[0]->ID;
 		$lowest       = $counter[ $first_id ];
 		$lowest_index = 0;
-		$avg          = self::get_player_score_avg( $player_id );
-		$lowest_dist  = abs( $avg - self::get_player_score_avg( $first_id ) );
+		$avg          = self::get_player_score_avg( $player_id ,$season_id);
+		$lowest_dist  = abs( $avg - self::get_player_score_avg( $first_id,$season_id ) );
 		$playerCount  = count( $playable );
 		for ( $i = 1; $i < $playerCount; $i ++ ) {
 			$play = $playable[ $i ];
 			if ( ( $counter[ $play->ID ] === $lowest ) ) {
-				$dist = abs( $avg - self::get_player_score_avg( $play->ID ) );
+				$dist = abs( $avg - self::get_player_score_avg( $play->ID ,$season_id) );
 				if ( $dist < $lowest_dist ) {
 					$lowest_dist  = $dist;
 					$lowest_index = $i;
@@ -170,8 +189,8 @@ class ScheduleHelper {
 		$first_id     = $playable[0]->ID;
 		$lowest       = $counter[ $first_id ];
 		$lowest_index = 0;
-		$i            = 0;
-		$playerCount  = count( $playable );
+
+		$playerCount = count( $playable );
 		for ( $i = 1; $i < $playerCount; $i ++ ) {
 			$play = $playable[ $i ];
 			if ( $counter[ $play->ID ] < $lowest ) {
@@ -196,16 +215,21 @@ class ScheduleHelper {
 	 *
 	 * @return float|int
 	 */
-	public static function get_player_score_avg( int $player_id ) {
-		$score       = GameHelper::get_total_player_points( $player_id );
-		$total_games = count( GameHelper::get_all_player_complete_games( $player_id ) );
-		if ( $total_games > 0 ) {
-			$avg = $score / $total_games;
-		} else {
-			$avg = 0;
+	public static function get_player_score_avg( int $player_id, $season_id ) {
+		$games       = GameHelper::get_player_games_by_season( $player_id, $season_id );
+		$total_games = 0;
+		foreach ( $games as $game ) {
+			if ( ! GameHelper::is_game_complete( $game->ID, - 1 ) ) {
+				continue;
+			}
+			$total_games ++;
 		}
+		if ( $total_games === 0 ) {
+			return 0;
+		}
+		$score = GameHelper::get_total_player_points_for_season( $player_id, $season_id );
 
-		return $avg;
+		return $score / $total_games;
 	}
 
 	private static function create_game_table( WP_POST $game ): string {

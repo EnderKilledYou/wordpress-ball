@@ -48,9 +48,12 @@ class MatchHelper {
 		] );
 	}
 
-	public static function create_match( int $season_id, int $week, $txt, $date, $match_count, $match_size ) {
+	public static function create_match( int $season_id, int $week, $txt, $date, $match_count, $match_size ,$finals=false) {
 
 		$post_title = "Week $week: $txt $date";
+		if($finals){
+			$post_title="FINALS for season! $txt $date";
+		}
 		$stat       = wp_insert_post( [
 			'post_type'    => WPBallObjectsRepository::MATCH_POST_TYPE,
 			'post_title'   => $post_title,
@@ -64,11 +67,7 @@ class MatchHelper {
 		update_post_meta( $stat, self::$match_count, $match_count );
 		update_post_meta( $stat, self::$match_size, $match_size );
 		wp_publish_post( $stat );
-//		update_post_meta( $stat, self::$player_2, $player2->ID );
-//		update_post_meta( $stat, self::$player_1_score, "0" );
-//		update_post_meta( $stat, self::$player_2_score, "0" );
-//		update_post_meta( $stat, self::$player_2_score, "0" );
-//		update_post_meta( $stat, self::$game_state, 'pending' );
+
 
 		return $stat;
 	}

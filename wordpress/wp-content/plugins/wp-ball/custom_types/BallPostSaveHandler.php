@@ -122,10 +122,14 @@ class BallPostSaveHandler {
 		if ( isset( $_REQUEST['total_weeks'] ) && is_numeric( $_REQUEST['total_weeks'] ) ) {
 			$total_weeks = abs( (int) $_REQUEST['total_weeks'] );
 		}
+		if ( isset( $_REQUEST['generate_finals'] ) && $_REQUEST['generate_finals'] === 'yes' ) {
+			$finals = true;
+		}
 		for ( $i = 0; $i < $total_weeks; $i ++ ) {
 			if ( ! self::find_match_by_week( $matches, $timestamp ) ) {
 
-				$match_id = MatchHelper::create_match( $id, $i + 1, $season->post_title, date( "m/d/Y", $timestamp, ), (int)$_REQUEST['match_count'],(int) $_REQUEST['match_size'] );
+
+				$match_id = MatchHelper::create_match( $id, $i + 1, $season->post_title, date( "m/d/Y", $timestamp, ), (int)$_REQUEST['match_count'],(int) $_REQUEST['match_size'] ,$finals);
 			}
 			$timestamp = strtotime( "+ 7 days", $timestamp );
 		}

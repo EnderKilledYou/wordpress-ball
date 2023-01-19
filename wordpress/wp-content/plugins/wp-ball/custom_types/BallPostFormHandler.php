@@ -200,26 +200,16 @@ class BallPostFormHandler {
 			return;
 		}
 		$players                = PlayerHelper::get_players();
+		$seasons                = PlayerHelper::get_seasons();
 		$current_players_scores = ScoreHelper::get_season_scores( $post->ID );
 		?>
         <div class="postbox ">
             <div class="postbox-header">
                 <h2 class="hndle  ui-sortable-handle">Add Players to current season</h2>
                 <div>
-                    <span>Add players first, then use the rebuild options.</span>
+                    <span>Add players first to use then use the rebuild options. </span> <br/> <span>Make sure you have a <b>POST TITLE</b></span>
                 </div>
-                <div class="handle-actions hide-if-no-js">
 
-                    <label>
-                        <input type="checkbox" name="generate_matches" class=" "/>
-                        Rebuild with selected players and start date:
-                    </label>
-                    <label>
-                        <input type="date" name="start_date" value="<?php echo date( "m/d/yy" ); ?>">
-
-                    </label>
-
-                </div>
             </div>
             <div class=" inside ">
 
@@ -244,38 +234,76 @@ class BallPostFormHandler {
 							?>
 
                         </select>
-                    </label></div>
+                    </label>
+                </div>
+				<?php if ( count( $current_players_scores ) > 0 ) { ?>
 
-                <div>
-                    <label>
-                        Generate these as finals week with people closest in standing?
-                        <input name="generate_finals" type="checkbox" value="yes">
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        How many games per match:
-                        <input name="match_size" value="5">
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        How many matches per week:
-                        <input name="match_count" value="4">
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        How many rounds per game:
-                        <input name="total_games" value="3">
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        How many weeks:
-                        <input name="total_weeks" value="7">
-                    </label>
-                </div>
+
+                    <div>
+                        <label>
+                            Use these
+                            <select multiple name="seasons[]">
+								<?php
+								foreach ( $seasons as $season ) {
+
+									if ( $season->ID === $post->ID ) {
+										continue;
+									}
+
+									?>
+
+                                    <option value="<?php echo $season->ID; ?>">
+										<?php echo $season->post_title; ?>
+                                    </option>
+								<?php }
+								?>
+
+                            </select>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            Generate these as finals week with people closest in standing?
+                            <input name="generate_finals" type="checkbox" value="yes">
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            How many games per match:
+                            <input name="match_size" value="5">
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            How many matches per week:
+                            <input name="match_count" value="4">
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            How many rounds per game:
+                            <input name="total_games" value="3">
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            How many weeks:
+                            <input name="total_weeks" value="7">
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            <input type="date" name="start_date" value="<?php echo date( "m/d/yy" ); ?>">
+
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            <input type="checkbox" name="generate_matches" class=" "/>
+                            Generate Matches using the selected date above
+                        </label>
+                    </div>
+				<?php } ?>
             </div>
         </div>
 
