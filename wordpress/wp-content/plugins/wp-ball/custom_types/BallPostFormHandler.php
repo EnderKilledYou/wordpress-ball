@@ -267,18 +267,7 @@ class BallPostFormHandler {
                             <input name="generate_finals" type="checkbox" value="yes">
                         </label>
                     </div>
-                    <div>
-                        <label>
-                            How many games per match:
-                            <input name="match_size" value="5">
-                        </label>
-                    </div>
-                    <div>
-                        <label>
-                            How many matches per week:
-                            <input name="match_count" value="4">
-                        </label>
-                    </div>
+
                     <div>
                         <label>
                             How many rounds per game:

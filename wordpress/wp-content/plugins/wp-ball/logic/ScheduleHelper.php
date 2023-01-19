@@ -39,25 +39,23 @@ class ScheduleHelper {
 		if ( isset( $_REQUEST['generate_finals'] ) && $_REQUEST['generate_finals'] === 'yes' ) {
 			$finals = true;
 		}
-		$matches = MatchHelper::get_season_matches( $id );
-		$lineup  = self::get_player_vs_count( $players, $seasons );
-
+		$matches     = MatchHelper::get_season_matches( $id );
+		$lineup      = self::get_player_vs_count( $players, $seasons );
+		$match_count = 4;
+		$match_size  = 5;
 		foreach ( $matches as $match ) {
-			$match_count = MatchHelper::get_match_count( $match->ID );
-			$match_size  = MatchHelper::get_match_size( $match->ID );
 
 
-			for ( $match_size_index = 0; $match_size_index < $match_size; $match_size_index ++ ) {
+			for ( $match_count_index = 0; $match_count_index < $match_count; $match_count_index ++ ) {
 				$already_played = [];
-				for ( $match_count_index = 0; $match_count_index < $match_count; $match_count_index ++ ) {
-
-					$filter  = array_filter( $players, static function ( $e ) use ( $already_played ) {
+				for ( $match_size_index = 0; $match_size_index < $match_size; $match_size_index ++ ) {
+					$filter    = array_filter( $players, static function ( $e ) use ( $already_played ) {
 						return ! in_array( $e->ID, $already_played, true );
 					} );
 					$player_id = PlayerHelper::get_player_with_least_games_in_season( $id, $filter );
 
 					$all_but = array_values( array_filter( $players, static function ( $e ) use ( $already_played, $player_id ) {
-						return $player_id !== $e->ID && !in_array( $e->ID, $already_played, false );
+						return $player_id !== $e->ID && ! in_array( $e->ID, $already_played, false );
 					} ) );
 
 
