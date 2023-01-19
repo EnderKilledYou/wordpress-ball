@@ -114,7 +114,7 @@ class ShortCodeHelpers {
 		$matches     = MatchHelper::get_season_matches( $season_id );
 		$matches_str = '';
 		foreach ( $matches as $match ) {
-			$matches_str .= self::create_match_table( $match );
+			$matches_str .= self::create_match_table( $match,-1,-1 );
 		}
 
 		return $matches_str;

@@ -52,7 +52,7 @@ class MatchHelper {
 
 		$post_title = "Week $week: $txt $date";
 		if($finals){
-			$post_title="FINALS for season! $txt $date";
+ 			$post_title="FINALS for season! $txt $date";
 		}
 		$stat       = wp_insert_post( [
 			'post_type'    => WPBallObjectsRepository::MATCH_POST_TYPE,
