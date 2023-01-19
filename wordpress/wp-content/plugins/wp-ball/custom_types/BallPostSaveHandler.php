@@ -118,7 +118,7 @@ class BallPostSaveHandler {
 		$matches     = MatchHelper::get_season_matches( $id );
 		$first_date  = strtotime( $_REQUEST['start_date'] );
 		$timestamp   = $first_date;
-		$total_weeks = 7;
+ 		$total_weeks = 7;
 		if ( isset( $_REQUEST['total_weeks'] ) && is_numeric( $_REQUEST['total_weeks'] ) ) {
 			$total_weeks = abs( (int) $_REQUEST['total_weeks'] );
 		}

@@ -86,6 +86,7 @@ class PlayerHelper {
 		}
 
 		$keys   = array_keys( $counter );
+
 		$first  = array_shift( $keys );
 		$lowest = $first;
 		$min    = $counter[ $first ];
