@@ -39,23 +39,26 @@ class ScheduleHelper {
 		if ( isset( $_REQUEST['generate_finals'] ) && $_REQUEST['generate_finals'] === 'yes' ) {
 			$finals = true;
 		}
-		$matches    = MatchHelper::get_season_matches( $id );
-		$lineup     = self::get_player_vs_count( $players, $seasons );
+		$matches = MatchHelper::get_season_matches( $id );
+		$lineup  = self::get_player_vs_count( $players, $seasons );
 
 		foreach ( $matches as $match ) {
 			$match_count = MatchHelper::get_match_count( $match->ID );
 			$match_size  = MatchHelper::get_match_size( $match->ID );
 
 
-			for ( $i = 0; $i < $match_size; $i ++ ) {
+			for ( $match_size_index = 0; $match_size_index < $match_size; $match_size_index ++ ) {
+				$already_played = [];
+				for ( $match_count_index = 0; $match_count_index < $match_count; $match_count_index ++ ) {
 
-				for ( $z = 0; $z < $match_count; $z ++ ) {
-					$player_id = PlayerHelper::get_player_with_least_games_in_season( $id, $players );
+					$filter  = array_filter( $players, static function ( $e ) use ( $already_played ) {
+						return ! in_array( $e->ID, $already_played, true );
+					} );
+					$player_id = PlayerHelper::get_player_with_least_games_in_season( $id, $filter );
 
-					$all_but = array_values( array_filter( $players, static function ( $e ) use ( $player_id ) {
-						return $player_id !== $e->ID;
+					$all_but = array_values( array_filter( $players, static function ( $e ) use ( $already_played, $player_id ) {
+						return $player_id !== $e->ID && !in_array( $e->ID, $already_played, false );
 					} ) );
-
 
 
 					if ( ! $finals ) {
@@ -68,7 +71,7 @@ class ScheduleHelper {
 					}
 					$lowest_machine = MachineHelper::get_lowest_machine( $player_id, $lowest );
 
-					GameHelper::create_game( $id, $match->ID, $total_games, $player_id, $lowest, $lowest_machine, $i,$z );
+					GameHelper::create_game( $id, $match->ID, $total_games, $player_id, $lowest, $lowest_machine, $match_size_index, $match_count_index );
 					MachineHelper::increment_total_games_played( $lowest_machine );
 					if ( ! isset( $lineup[ $player_id ][ $lowest ] ) ) {
 						$lineup[ $player_id ][ $lowest ] = 0;
@@ -78,7 +81,8 @@ class ScheduleHelper {
 					}
 					$lineup[ $player_id ][ $lowest ] ++;
 					$lineup[ $lowest ][ $player_id ] ++;
-
+					$already_played[] = $player_id;
+					$already_played[] = $lowest;
 
 
 				}

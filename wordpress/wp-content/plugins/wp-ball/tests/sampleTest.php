@@ -64,7 +64,7 @@ final class StackTest extends TestCase {
 	public function test_short_codes(): void {
 
 
-		$season_id = 2175;// create_first_default_season(); //191
+		$season_id = 2735;// create_first_default_season(); //191
 //		$scores = ScoreHelper::get_season_scores( $season_id );
 //		$players = PlayerHelper::map_scores_to_players( $scores );
 //		$player_id = PlayerHelper::get_player_with_least_games_in_season( $season_id, $players );
@@ -73,7 +73,7 @@ final class StackTest extends TestCase {
 		$_REQUEST['match_size']       = 5;
 		$_REQUEST['generate_matches'] = true;
 		$_REQUEST['start_date']       = date( 'm/d/Y', strtotime( "+ 340 weeks" ) );
-		$_REQUEST['total_weeks']  =1;
+		$_REQUEST['total_weeks']  =3;
 		BallPostSaveHandler::RebuildSchedule( $season_id );
 
 		return;
