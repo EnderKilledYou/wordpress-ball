@@ -122,6 +122,7 @@ class BallPostSaveHandler {
 		if ( isset( $_REQUEST['total_weeks'] ) && is_numeric( $_REQUEST['total_weeks'] ) ) {
 			$total_weeks = abs( (int) $_REQUEST['total_weeks'] );
 		}
+		$finals=false;
 		if ( isset( $_REQUEST['generate_finals'] ) && $_REQUEST['generate_finals'] === 'yes' ) {
 			$finals = true;
 		}
